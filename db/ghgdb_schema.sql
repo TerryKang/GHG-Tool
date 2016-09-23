@@ -1,149 +1,148 @@
+
 -- GHG Schema
 USE [ghgdb];
 
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'Scenario')
-	DROP TABLE dbo.[Scenario];
-IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'Distance')
-	DROP TABLE dbo.[Distance];
+    DROP TABLE dbo.[Scenario];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'SourceByDest')
-	DROP TABLE dbo.[SourceByDest];
+    DROP TABLE dbo.[SourceByDest];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'SourceByComp')
-	DROP TABLE dbo.[SourceByComp];
+    DROP TABLE dbo.[SourceByComp];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'DestByComp')
-	DROP TABLE dbo.[DestByComp];
+    DROP TABLE dbo.[DestByComp];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'CO2EmissionFactor')
-	DROP TABLE dbo.[CO2EmissionFactor];
+    DROP TABLE dbo.[CO2EmissionFactor];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'ElectConRate')
-	DROP TABLE dbo.[ElectConRate];
+    DROP TABLE dbo.[ElectConRate];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'ElectEmissionFactor')
-	DROP TABLE dbo.[ElectEmissionFactor];
+    DROP TABLE dbo.[ElectEmissionFactor];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'ElectEmissionOption')
-	DROP TABLE dbo.[ElectEmissionOption];
+    DROP TABLE dbo.[ElectEmissionOption];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'Source')
-	DROP TABLE dbo.[Source];
+    DROP TABLE dbo.[Source];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'Destination')
-	DROP TABLE dbo.[Destination];
+    DROP TABLE dbo.[Destination];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'Composition')
-	DROP TABLE dbo.[Composition];
+    DROP TABLE dbo.[Composition];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'Vehicle')
-	DROP TABLE dbo.[Vehicle];
+    DROP TABLE dbo.[Vehicle];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'User')
-	DROP TABLE dbo.[User];
+    DROP TABLE dbo.[User];
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'Policy')
-	DROP TABLE dbo.[Policy];
+    DROP TABLE dbo.[Policy];
 
 CREATE TABLE dbo.[User] (
-	userId		INT			NOT NULL	IDENTITY(1,1),
-	email		VARCHAR(30)	NOT NULL,
-	passwd		VARCHAR(32)	NOT NULL,
-	firstName	VARCHAR(30)	NOT NULL,
-	lastName	VARCHAR(30)	NOT NULL,
-	phone		VARCHAR(20)	NOT NULL,
-	address		VARCHAR(70)	NOT NULL,
-	level		TINYINT		DEFAULT 1,
-	isValid		BIT			DEFAULT 1,
-	PRIMARY KEY	(userId)
+    userId      INT         NOT NULL    IDENTITY(1,1),
+    email       VARCHAR(30) NOT NULL,
+    passwd      VARCHAR(32) NOT NULL,
+    firstName   VARCHAR(30) NOT NULL,
+    lastName    VARCHAR(30) NOT NULL,
+    phone       VARCHAR(20) NOT NULL,
+    address     VARCHAR(70) NOT NULL,
+    level       TINYINT     DEFAULT 1,
+    isValid     BIT         DEFAULT 1,
+    PRIMARY KEY (userId)
 );
 
 CREATE TABLE dbo.[Policy] (
-	policyNumber	INT			NOT NULL	IDENTITY(1,1),
-	worksheetName	VARCHAR(30)	NOT NULL,
-	scenarioYear	CHAR(4)		NOT NULL,
-	description		TEXT,
-	isRun			BIT			DEFAULT 1,
-	errorCheck		BIT			DEFAULT 0,
-	PRIMARY KEY (policyNumber)
+    policyNumber    INT         NOT NULL    IDENTITY(1,1),
+    worksheetName   VARCHAR(30) NOT NULL,
+    scenarioYear    CHAR(4)     NOT NULL,
+    description     TEXT,
+    isRun           BIT         DEFAULT 1,
+    errorCheck      BIT         DEFAULT 0,
+    PRIMARY KEY (policyNumber)
 );
 
 CREATE TABLE dbo.[Source] (
-	sourceId	TINYINT		NOT NULL,
-	sourceName	VARCHAR(30)	NOT NULL,
-	PRIMARY KEY (sourceId)
+    sourceId    TINYINT     NOT NULL,
+    sourceName  VARCHAR(30) NOT NULL,
+    PRIMARY KEY (sourceId)
 );
 
 CREATE TABLE dbo.[Destination] (
-	destinationId		TINYINT		NOT NULL,
-	destinationName		VARCHAR(30)	NOT NULL,
-	distance			INT,
-	PRIMARY KEY (destinationId)
+    destinationId       TINYINT     NOT NULL,
+    destinationName     VARCHAR(30) NOT NULL,
+    distance            INT,
+    PRIMARY KEY (destinationId)
 );
 
 CREATE TABLE dbo.[Composition] (
-	compositionId	TINYINT	NOT NULL,
-	compositionName	VARCHAR(30)	NOT NULL,
-	PRIMARY KEY (compositionId)
+    compositionId   TINYINT NOT NULL,
+    compositionName VARCHAR(30) NOT NULL,
+    PRIMARY KEY (compositionId)
 );
 
 CREATE TABLE dbo.[Vehicle] (
-	modelId	TINYINT		NOT NULL,
-	model				VARCHAR(10) NOT NULL,
-	tonnage				INT			NOT NULL,
-	emissionFactor		DECIMAL(5,3),
-	emissionFactorTonne DECIMAL(3,2),
-	PRIMARY KEY (modelId)
+    modelId TINYINT     NOT NULL,
+    model               VARCHAR(10) NOT NULL,
+    tonnage             INT         NOT NULL,
+    emissionFactor      DECIMAL(5,3),
+    emissionFactorTonne DECIMAL(3,2),
+    PRIMARY KEY (modelId)
 );
 
 CREATE TABLE dbo.[ElectEmissionFactor] (
-	emissionFactor	DECIMAL(5,4)
+    emissionFactor  DECIMAL(5,4)
 );
 
 CREATE TABLE dbo.[ElectEmissionOption] (
-	emissionOption	VARCHAR(30)	NOT NULL,
-	emissionFactor	DECIMAL(5,4),
-	PRIMARY KEY (emissionOption)
+    emissionOption  VARCHAR(30) NOT NULL,
+    emissionFactor  DECIMAL(5,4),
+    PRIMARY KEY (emissionOption)
 );
 
 CREATE TABLE dbo.[Scenario] (
-	scenarioId		INT		NOT NULL	IDENTITY(1,1),
-	userId			INT		NOT NULL,
-	policyNumber	INT		NOT NULL,
-	PRIMARY KEY (scenarioId),
-	FOREIGN KEY (userId) REFERENCES dbo.[User](userId)	ON DELETE CASCADE,
-	FOREIGN KEY (policyNumber) REFERENCES dbo.[Policy](policyNumber)	ON DELETE CASCADE
+    scenarioId      INT    NOT NULL    IDENTITY(1,1),
+    userId          INT    NOT NULL,
+    policyNumber    INT    NOT NULL,
+    PRIMARY KEY (scenarioId),
+    FOREIGN KEY (userId) REFERENCES dbo.[User](userId) ON DELETE CASCADE,
+    FOREIGN KEY (policyNumber) REFERENCES dbo.[Policy](policyNumber) ON DELETE CASCADE
 );
 
 CREATE TABLE dbo.[CO2EmissionFactor] (
-	compositionId		TINYINT		NOT NULL,
-	destinationId		TINYINT		NOT NULL,
-	emissionFactor		DECIMAL(6,1),
-	FOREIGN KEY (compositionId) REFERENCES dbo.[Composition](compositionId)	ON DELETE CASCADE,
-	FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId)	ON DELETE CASCADE
+    compositionId    TINYINT    NOT NULL,
+    destinationId    TINYINT    NOT NULL,
+    emissionFactor   DECIMAL(6,1),
+    FOREIGN KEY (compositionId) REFERENCES dbo.[Composition](compositionId) ON DELETE CASCADE,
+    FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId) ON DELETE CASCADE
 );
 
 CREATE TABLE dbo.[ElectConRate] (
-	destinationId		TINYINT		NOT NULL,
-	consumptionRate		INT,
-	FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId)	ON DELETE CASCADE
+    destinationId    TINYINT    NOT NULL,
+    consumptionRate  INT,
+    FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId) ON DELETE CASCADE
 );
 
 CREATE TABLE dbo.[SourceByDest] (
-	sourceId		TINYINT		NOT NULL,
-	destinationId	TINYINT		NOT NULL,
-	scenarioYear	CHAR(4)		NOT NULL,
-	tonnage			INT			NOT NULL,
-	vehicleModelId	TINYINT		NOT NULL,
-	transferPercent	VARCHAR(10),
-	FOREIGN KEY (sourceId) REFERENCES dbo.[Source](sourceId)	ON DELETE CASCADE,
-	FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId)	ON DELETE CASCADE,
-	FOREIGN KEY (vehicleModelId) REFERENCES dbo.[Vehicle](modelId)	ON DELETE CASCADE
+    sourceId        TINYINT    NOT NULL,
+    destinationId   TINYINT    NOT NULL,
+    scenarioYear    CHAR(4)    NOT NULL,
+    tonnage         INT        NOT NULL,
+    vehicleModelId  TINYINT    NOT NULL,
+    transferPercent VARCHAR(10),
+    FOREIGN KEY (sourceId) REFERENCES dbo.[Source](sourceId) ON DELETE CASCADE,
+    FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId) ON DELETE CASCADE,
+    FOREIGN KEY (vehicleModelId) REFERENCES dbo.[Vehicle](modelId) ON DELETE CASCADE
 );
 
 CREATE TABLE dbo.[SourceByComp] (
-	sourceId		TINYINT		NOT NULL,
-	compositionId	TINYINT		NOT NULL,
-	scenarioYear	CHAR(4)		NOT NULL,
-	tonnage			INT			NOT NULL,
-	FOREIGN KEY (sourceId) REFERENCES dbo.[Source](sourceId)	ON DELETE CASCADE,
-	FOREIGN KEY (compositionId) REFERENCES dbo.[Composition](compositionId)	ON DELETE CASCADE
+    sourceId         TINYINT    NOT NULL,
+    compositionId    TINYINT    NOT NULL,
+    scenarioYear     CHAR(4)    NOT NULL,
+    tonnage          INT        NOT NULL,
+    FOREIGN KEY (sourceId) REFERENCES dbo.[Source](sourceId) ON DELETE CASCADE,
+    FOREIGN KEY (compositionId) REFERENCES dbo.[Composition](compositionId) ON DELETE CASCADE
 );
 
 CREATE TABLE dbo.[DestByComp] (
-	destinationId	TINYINT		NOT NULL,
-	compositionId	TINYINT		NOT NULL,
-	scenarioYear	CHAR(4)		NOT NULL,
-	tonnage			INT			NOT NULL,
-	FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId)	ON DELETE CASCADE,
-	FOREIGN KEY (compositionId) REFERENCES dbo.[Composition](compositionId)	ON DELETE CASCADE
+    destinationId    TINYINT    NOT NULL,
+    compositionId    TINYINT    NOT NULL,
+    scenarioYear     CHAR(4)    NOT NULL,
+    tonnage          INT        NOT NULL,
+    FOREIGN KEY (destinationId) REFERENCES dbo.[Destination](destinationId) ON DELETE CASCADE,
+    FOREIGN KEY (compositionId) REFERENCES dbo.[Composition](compositionId) ON DELETE CASCADE
 );
 
 -- GHG Data
@@ -235,3 +234,4 @@ INSERT INTO dbo.[ElectConRate](destinationId, consumptionRate) VALUES(3,0);
 INSERT INTO dbo.[ElectConRate](destinationId, consumptionRate) VALUES(4,45);
 INSERT INTO dbo.[ElectConRate](destinationId, consumptionRate) VALUES(5,45);
 INSERT INTO dbo.[ElectConRate](destinationId, consumptionRate) VALUES(6,0);
+
