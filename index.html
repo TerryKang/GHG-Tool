@@ -1,0 +1,27 @@
+<html>
+<head>
+<script src="src/DynamicTables.js"></script>
+</head>
+<body onload="run();">
+<hr>
+<table id="table1"></table>
+<hr>
+<table id="table2"></table>
+<hr>
+<script>
+function run(){
+    Table1 = new DynamicTable(
+            document.getElementById("table1"),
+            5,
+            8,
+            "<input type=\"text\"></input>");
+    
+    Table2 = new DynamicTable(
+            document.getElementById("table2"),
+            5,
+            8,
+            function(i, j){return [i,j];});
+}
+</script>
+</body>
+</html>
