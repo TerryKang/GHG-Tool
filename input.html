@@ -34,7 +34,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <script>
 function init(){
-    inputTable = DynamicTable(document.getElementById("inputTable"),5,5,"<input type=\"text\"></input>");
+    inputTable = DynamicTable(document.getElementById("inputTable"),6,7);
+    inputTable.add.col(0,1,{type:"label",value:"Data Type"});
+    inputTable.add.row(0,1,{type:"label",value:"Demo Header"});
+    inputTable.set.cell(0,0,{type:"label",value:"Input Table"});
 }
 </script>
 </head>
@@ -119,7 +122,14 @@ desired effect
 
         <!-- Main content -->
         <section class="content">
-            <table class="table table-hover table-condensed" id="inputTable"></table>
+            <table 
+                class="
+                table
+                table-hover
+                table-condensed
+                text-nowrap
+                " 
+                id="inputTable"></table>
         </section>
         <!-- /.content -->
     </div>

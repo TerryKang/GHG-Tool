@@ -1,138 +1,179 @@
-//constructor for dynamic table
-//@param rootTable root table element to add rows and columns to.
-//@param rows inital rows to create table with.
-//@param columns initial columns to create table with.
-function DynamicTable(rootTable, rows, columns, callback){
-    //check params
-    if(rows < 1){
-        throw {message:"Invalid row number", value:rows};
-    }
-    if(columns < 1){
-        throw {message:"Invalid column number", value:columns};
-    }
-    callback = (typeof callback != "undefined")? callback : "";
+//to interact with a table create one with
+//(the table element, row number, column number)
+//
+//  NOTE: row precieds column so in terms of a carteesian plane its y,x
+//
+//from the base table function there are three main sections:
+//>add
+//  row(start, length, object with node properties)
+//  col(start, length, object with node properties)
+//
+//>rem
+//  row(start, length)
+//  col(start, length)
+//
+//>set
+//  row(start, length, object with node properties)
+//  col(start, length, object with node properties)
+//  cell(row,column, object with node properties)
+//
+//>debug - is avalible but its use is discuraged as it is only ment to diagnose issues
+//  get() 
+//      the whole internal structure
+//  set(x)
+//      force internal structure to be x
 
-    //setup internal varables
-    this.internal = {
-        //[row number decending][column number acending]
-        elements:[[]],
-        rowNum:rows,
-        colNum:columns,
-        root:rootTable,
-    }
-
-    for(var i = 0; i < this.internal.rowNum; i++){
-        var row = this.internal.elements[i] = [];
-        for(var j = 0; j < this.internal.colNum; j++){
-            var col = row[j] = callback;
-        }
-    }
-
-    //function declarations
-    this.size = function(){
-        return [this.internal.rowNum,this.internal.colNum];
-    }
-
-    //reflow DOM with new changes
-    this.update = function(){
-        var table = this.internal.root;
-        var tbody = document.createElement("tbody");
-        for(var i = 0; i < this.internal.rowNum; i++){
-            var row = tbody.insertRow(i);
-            for(var j = 0; j < this.internal.colNum; j++){
-                var col = row.insertCell(j);
-                var value = this.internal.elements[i][j];
-                col.innerHTML = (typeof value == "function")? value(i,j) : value;
+function DynamicTable(rootTable, rows, cols, auto_update){
+    return (function(rootTable, rows, cols, auto_update){
+        //var inside aunomymous function to hide data
+        var internal = {
+            root:rootTable,
+           rows:rows,
+           cols:cols,
+           elements:[[]],
+           autoupdate: auto_update || true,
+        };
+        internal.root.parentElement.setAttribute("style","overflow:auto");
+        //mock default init
+        for(var i=0;i<rows;i++){
+            internal.elements[i] = [];
+            for(var j=0;j<cols;j++){
+                internal.elements[i][j] = new Node(
+                    "input",//type
+                    '',//TODO tag not yet implemented
+                    "",//starting value
+                    {attr:"class",value:"text-info text-center"}//attribute
+                    );
             }
         }
-        table.innerHTML="";
-        table.appendChild(tbody);
-    }
-
-    //add a row to this table
-    //@param pos the index of the row to add, default append row
-    //@param callback the fill or function to insert into the newly created row
-    this.addRow = function(pos, callback){
-        callback = (typeof callback != "undefined")? callback : "";
-        var func = (typeof callback == "function");
-        pos = (typeof pos != "undefined" && pos >= 0)? pos : this.internal.rowNum;
-        this.internal.rowNum++;
-
-        this.internal.elements.splice(pos,0,[]);
-        this.internal.elements[pos];
-        for(var j = 0; j < this.internal.colNum; j++){
-            this.internal.elements[pos][j] = callback;
+        var table = {
+            debug:{
+                get:function(){
+                    return internal;
+                },
+                set:function(x){
+                    internal = x;
+                }
+            },
+            add:{
+                row:function(start,number,node){
+                    for(var i = start; i<start+number; i++){
+                        var col = internal.elements.splice(i,0,[]);
+                        for(var j=0; j < internal.cols; j++){
+                            internal.elements[i][j] = new Node(node.type, node.tag, node.value, node.attr);
+                        }
+                    }
+                    internal.rows+=number;
+                    if(internal.autoupdate)
+                        table.update();
+                },
+                col:function(start,number,node){
+                    for(var j = 0; j< internal.rows; j++){
+                        for(var i = start; i<start+number; i++){
+                            var col = internal.elements[j].splice(i,0,[]);
+                            internal.elements[j][i] = new Node(node.type, node.tag, node.value, node.attr);
+                        }
+                    }
+                    internal.cols+=number;
+                    if(internal.autoupdate)
+                        table.update();
+                },
+            },
+            rem:{
+                row:function(start,number){
+                    internal.elements.splice(start, number);
+                    internal.rows-=number;
+                    if(internal.autoupdate)
+                        table.update();
+                },
+                col:function(start,number){
+                    for(var j = 0; j< internal.rows; j++){
+                        internal.elements[j].splice(start,number);
+                    }
+                    internal.cols-=number;
+                    if(internal.autoupdate)
+                        table.update();
+                },
+            },
+            set:{
+                row:function(start,number,node){
+                    for(var i = start; i<start+number; i++){
+                        for(var j=0; j < internal.cols; j++){
+                            internal.elements[i][j] = new Node(node.type, node.tag, node.value, node.attr);
+                        }
+                    }
+                    if(internal.autoupdate)
+                        table.update();
+                },
+                col:function(start,number,node){
+                    for(var j = 0; j< internal.rows; j++){
+                        for(var i = start; i<start+number; i++){
+                            internal.elements[j][i] = new Node(node.type, node.tag, node.value, node.attr);
+                        }
+                    }
+                    if(internal.autoupdate)
+                        table.update();
+                },
+                cell:function(row, column, node){
+                    internal.elements[row][column] = new Node(node.type, node.tag, node.value, node.attr);
+                    if(internal.autoupdate)
+                        table.update();
+                }
+            },
+            update:function(){
+                var table = internal.root;
+                var tbody = document.createElement("tbody");
+                for(var i = 0; i < internal.rows; i++){
+                    var row = tbody.insertRow(i);
+                    for(var j = 0; j < internal.cols; j++){
+                        var col = row.insertCell(j);
+                        var value = internal.elements[i][j];
+                        col.appendChild(internal.elements[i][j].get());
+                    }
+                }
+                table.innerHTML="";
+                table.appendChild(tbody);
+            },
+            toJSON:function(){
+                var baseTable = [];
+                
+                for (var i = 0; i < internal.elements.length; i++) {
+                    baseTable[i]=[];
+                    for (var j = 0; j < internal.elements[i].length; j++) {
+                        baseTable[i][j] = internal.elements[i][j];
+                    }
+                }
+                return {table:baseTable};
+            },
         }
-        this.update();
-    }
-
-    //add a column to this table
-    //@param pos the index of the row to add, default append column
-    //@param callback the fill or function to insert into the newly created column
-    this.addColumn = function(pos, callback){
-        callback = (typeof callback != "undefined")? callback : "";
-        var func = (typeof callback == "function");
-        pos = (typeof pos != "undefined" && pos >= 0)? pos : this.internal.colNum;
-        this.internal.colNum++;
-
-        for(var i = 0; i < this.internal.rowNum; i++){
-            this.internal.elements[i].splice(pos, 0, callback);
-        }
-        this.update();
-    }
-
-    //remove a row to this table
-    //@param pos the index of the row to add, default append row
-    this.removeRow = function(pos){
-        pos = (typeof pos != "undefined" && pos >= 0)? pos : this.internal.rowNum;
-        this.internal.rowNum--;
-        this.internal.elements.splice(pos,1);
-        this.update();
-    }
-
-    //remove a column to this table
-    //@param pos the index of the row to add, default append column
-    this.removeColumn = function(pos){
-        pos = (typeof pos != "undefined" && pos >= 0)? pos : this.internal.colNum;
-        this.internal.colNum--;
-        for(var i = 0; i < this.internal.rowNum; i++){
-            this.internal.elements[i].splice(pos, 1);
-        }
-        this.update();
-    }
-
-
-    //set a single table cell value
-    //@param row the row number to set
-    //@param column the column number to set
-    //@param callback the fill or function to set the cell to, default ""
-    this.set = function(row, column, callback){
-        if(row < 0)
-            throw {message:"Invalid row number", value:row};
-        if(column < 0)
-            throw {message:"Invalid column number", value:column};
-        callback = (typeof callback != "undefined")? callback : "";
-        this.internal.elements[row][column] = callback;
-        this.update();
-    }
-
-    //Stringify data for sending to the API
-    this.toJSON = function(){
-        var retObject = [];
-        for(var i = 0; i < this.internal.rowNum; i++){
-            retObject[i] = [];
-            for(var j = 0; j < this.internal.colNum; j++){
-                //why we use children and not childNodes
-                //http://stackoverflow.com/a/7935719/5539918
-                //children is only elements but childNodes is everything
-                var cell = this.internal.root.tBodies[0].children[i].children[j];
-                retObject[i][j] = (cell.children.length > 0)? cell.children[0].value : cell.innerText;
+        if(internal.autoupdate)
+            table.update();
+        return table;
+    })(rootTable, rows, cols, auto_update);
+}
+function Node(type, tag, value, attr){
+    this.type = type;//.split(",");
+    this.tag = tag;
+    this.value = value || "";
+    this.el;
+    this.get = function(){
+        if(typeof this.el == "undefined"){
+            var _this = this;
+            if(this.type == "input"){
+                this.el = document.createElement("input");
+                this.el.value = this.value;
+                this.el.onkeypress = function(){
+                    _this.value = (_this.type=="input")?
+                        this.value : this.innerText;
+                }
+            } else if (this.type == "label") {
+                this.el = document.createElement("h4");
+                this.el.innerText = this.value;
             }
+            if(attr)
+                this.el.setAttribute(attr.attr,attr.value);
         }
-        return JSON.stringify(retObject);
+        return this.el;
     }
-
-    this.update();
-    //return handle to table incase table needs to be modified externally
-    return this;
+    this.toJSON = function(){return this.value;}
 }
