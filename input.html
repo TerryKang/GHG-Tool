@@ -119,17 +119,42 @@ desired effect
                 <small>SP input</small>
             </h1>
         </section>
-
         <!-- Main content -->
         <section class="content">
-            <table 
-                class="
-                table
-                table-hover
-                table-condensed
-                text-nowrap
-                " 
-                id="inputTable"></table>
+            <div>
+                <div class="row">
+                    <div class="col-xs-8"> </div>
+                    <div class ="col-xs-4">
+                        <button class="btn btn-primary"><i class="fa fa-plus"></i> Add Location</button>
+                        <button class="btn btn-primary"><i class="fa fa-plus"></i> Add Destination</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <table
+                        class="
+                        table
+                        table-hover
+                        table-condensed
+                        text-nowrap
+                        "
+                        id="inputTable">
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-xs-1"> </div>
+                    <div class="dropdown col-xs-2">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Input Scenario
+                            <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Burnaby Scenario</a></li>
+                            <li><a href="#">Downtown Scenario</a></li>
+                            <li><a href="#">Residential Scenario</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-6"> </div>
+                    <button class="btn btn-primary col-xs-2"><i class="fa fa-save"></i> Save</button>
+                </div>
+            </div>
         </section>
         <!-- /.content -->
     </div>
