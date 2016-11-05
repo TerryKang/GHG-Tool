@@ -1,5 +1,7 @@
-var inputTable = null; 
+var root;
+var sum;
 function init(){
+    root = $("#inputTable").find("tbody");
     aja()
         .url("tableData.json")
         .on("success",function(data){
@@ -9,51 +11,53 @@ function init(){
 }
 
 function build(res){
-    var root = $("#inputTable");
+    $("#inputTable").css("overflow","auto");
     root.find("tbody").empty();
-    var row = root.find("tbody").append("<tr>");
+    var row = root.append("<tr>").find("tr:last");
     var x;
     for(x in res.comps){
-        row.last()
-            .append("<td>")
+        row.append("<td>")
             .find("td:last")
             .text(res.comps[x]);
     }
     for(x in res.results){
-        row = root
-            .find("tbody")
-            .append("<tr>");
-        row.append("<td>")
+        root.append("<tr>")
+            .find("tr:last")
+            .append("<td>")
             .find("td:last")
             .text(res.results[x].label);
         var c;
         for(c in res.results[x].data){
-            row.append("<td>")
+            var temp = root.find("tr:last")
+                .append("<td>")
                 .find("td:last")
                 .append("<input type=\"text\">")
-                .find("input:last")
-                .val(res.results[x].data[c]);
+                .find("input:last");
+            temp.val(res.results[x].data[c]);
+            temp.bind("keypress focusout",function(){validate();});
         }
+        var temp = root.find("tr:last");
+        if(temp.find("input").length!=0)
+            temp.append("<b>")
+            .find("b:last")
+            .text("Loading...");
     }
+    validate();
 }
 
 function validate(){
-    var root = $("#inputTable").find("tbody").first();
-    root.find("tr").each(function(){
-        var skip = true;
-        var sum = 0;
-        $(this).find("td").each(function(){
-            if(skip){
-                skip = false;
-            } else {
-                var temp = $(this).find("input").first().val();
-                if(temp.tbc == "check")
-            debugger;
-                else
-            debugger;
-            }
+    root.find("tr").each(function(in1){
+        sum = -1;
+        $(this).find("td").each(function(in2){
+            $(this).find("input").each(function(in3){
+                if(sum == -1){
+                    sum = 0;
+                    return;
+                }
+                sum+=Number($(this).val());
+            });
         });
-        console.log(sum);
+        $(this).find("b").text(sum==100?"OK":"Check Values");
     });
 }
 
