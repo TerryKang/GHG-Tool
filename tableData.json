@@ -1,0 +1,15 @@
+{
+    "compositions":
+    [
+        ["Source","Tonnage","Organic","Paper","Wood","Plastic","Other"],
+        ["Single Family",10000,55,10,2,29,4],
+        ["Organic",0,90,2,2,2,4],
+        ["Non Organic",0,10,10,5,60,15],
+        ["Multi Family",8000,55,10,2,29,4],
+        ["Comercial (ICI)",5000,45,20,2,29,4],
+        ["DLC",4000,5,10,50,5,30],
+        ["Farm",2000,80,2,14,2,2]
+
+    ],
+    "year":2015
+}

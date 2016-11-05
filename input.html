@@ -30,16 +30,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
-<script src="src/DynamicTables.js"></script>
+<script src="src/aja.js-0.4.1/aja.min.js"></script>
+<script src="src/GHG-Input.js"></script>
 
-<script>
-function init(){
-    inputTable = DynamicTable(document.getElementById("inputTable"),6,7);
-    inputTable.add.col(0,1,{type:"label",value:"Data Type"});
-    inputTable.add.row(0,1,{type:"label",value:"Demo Header"});
-    inputTable.set.cell(0,0,{type:"label",value:"Input Table"});
-}
-</script>
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -125,8 +118,8 @@ desired effect
                 <div class="row">
                     <div class="col-xs-8"> </div>
                     <div class ="col-xs-4">
-                        <button class="btn btn-primary"><i class="fa fa-plus"></i> Add Location</button>
-                        <button class="btn btn-primary"><i class="fa fa-plus"></i> Add Destination</button>
+                        <button onclick="addLoc();" class="btn btn-primary"><i class="fa fa-plus"></i> Add Location</button>
+                        <button onclick="addDest();" class="btn btn-primary"><i class="fa fa-plus"></i> Add Destination</button>
                     </div>
                 </div>
                 <div class="row">
@@ -138,6 +131,7 @@ desired effect
                         text-nowrap
                         "
                         id="inputTable">
+                        <tbody></tbody>
                     </table>
                 </div>
                 <div class="row">
