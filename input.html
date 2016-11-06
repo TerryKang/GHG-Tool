@@ -118,7 +118,7 @@ desired effect
                 <div class="row">
                     <div class="col-xs-8"> </div>
                     <div class ="col-xs-4">
-                        <button id="addLoc" onClick="addLoc();" class="btn btn-primary">
+                        <button id="addLoc" class="btn btn-primary">
                             <i class="fa fa-plus"></i> Add Location
                         </button>
                         <button id="addDest" onClick="addDest();" class="btn btn-primary">
@@ -127,7 +127,8 @@ desired effect
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-7 well" style="overflow:auto">
+                    <div class="col-xs-7 well" id="inputDiv" style="overflow:auto">
+                    <button class="btn btn-xs pull-right" onClick="mvL();"><i class="fa fa-caret-left"></i></button>
                     <table
                         class="
                         table
@@ -139,7 +140,8 @@ desired effect
                         <tbody></tbody>
                     </table>
                     </div>
-                    <div class="col-xs-5 well" style="overflow:auto">
+                    <div class="col-xs-5 well" id="destDiv" style="overflow:auto">
+                    <button class="btn btn-xs" onClick="mvR();"><i class="fa fa-caret-right"></i></button>
                     <table
                         class="
                         table

@@ -1,6 +1,11 @@
+//input table
 var inputRoot;
+//destination table
 var destinationRoot;
+//initial data from the server
 var serverData;
+//spaceing between the tables left and right respectivly
+var spL = 7,spR = 5;
 function init(){
     inputRoot = $("#inputTable").find("tbody");
     destinationRoot = $("#destinationTable").find("tbody");
@@ -74,10 +79,6 @@ function validate(){
     });
 }
 
-function addLoc(){
-
-}
-
 function addDest(){
     var base = serverData;
     var dest = "Vancouver Landfill";
@@ -130,3 +131,15 @@ function addDest(){
         }
     });
 }
+
+function mvL() {
+    if(spL>2){
+        $("#inputDiv").removeClass("col-xs-"+spL).addClass("col-xs-"+(--spL));
+        $("#destDiv").removeClass("col-xs-"+spR).addClass("col-xs-"+(++spR));
+    }
+}
+function mvR() {
+    if(spR>2){
+        $("#inputDiv").removeClass("col-xs-"+spL).addClass("col-xs-"+(++spL));
+        $("#destDiv").removeClass("col-xs-"+spR).addClass("col-xs-"+(--spR));
+    }}
