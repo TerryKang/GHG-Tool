@@ -118,11 +118,16 @@ desired effect
                 <div class="row">
                     <div class="col-xs-8"> </div>
                     <div class ="col-xs-4">
-                        <button onclick="addLoc();" class="btn btn-primary"><i class="fa fa-plus"></i> Add Location</button>
-                        <button onclick="addDest();" class="btn btn-primary"><i class="fa fa-plus"></i> Add Destination</button>
+                        <button id="addLoc" onClick="addLoc();" class="btn btn-primary">
+                            <i class="fa fa-plus"></i> Add Location
+                        </button>
+                        <button id="addDest" onClick="addDest();" class="btn btn-primary">
+                            <i class="fa fa-plus"></i> Add Destination Block
+                        </button>
                     </div>
                 </div>
-                <div class="row" style="overflow:auto">
+                <div class="row">
+                    <div class="col-xs-7" style="overflow:auto">
                     <table
                         class="
                         table
@@ -133,6 +138,19 @@ desired effect
                         id="inputTable">
                         <tbody></tbody>
                     </table>
+                    </div>
+                    <div class="col-xs-5" style="overflow:auto">
+                    <table
+                        class="
+                        table
+                        table-hover
+                        table-condensed
+                        text-nowrap
+                        "
+                        id="destinationTable">
+                        <tbody></tbody>
+                    </table>
+                </div>
                 </div>
                 <div class="row">
                     <div class="col-xs-1"> </div>
@@ -140,9 +158,9 @@ desired effect
                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Input Scenario
                             <span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Burnaby Scenario</a></li>
-                            <li><a href="#">Downtown Scenario</a></li>
-                            <li><a href="#">Residential Scenario</a></li>
+                            <li><a href="#">Scenario 1</a></li>
+                            <li><a href="#">Scenario 2</a></li>
+                            <li><a href="#">Scenario 3</a></li>
                         </ul>
                     </div>
                     <div class="col-xs-6"> </div>
