@@ -86,6 +86,9 @@ function addDest(){
 
     //no rows yet
     if(destinationRoot.find("tr").length==0){
+        //add label row
+        destinationRoot.append("<tr>");
+        //add data rows
         for(x in base.results){
             destinationRoot.append("<tr>");
         }
