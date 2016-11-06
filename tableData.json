@@ -1,0 +1,86 @@
+{
+    "comps":
+        ["Source","Tonnage","Organic","Paper","Wood","Plastic","Other"],
+    "results":
+        [
+        {
+            "label":"Single Family",
+            "data":[10000,55,10,2,29,4],
+            "dest":[
+            {
+                "facility":"Vancouver Landfill",
+                "percent":100,
+                "vehicle":"Truck A"
+            }
+            ]
+        },
+        {
+            "label":"Organic",
+            "data":[0,90,2,2,2,4],
+            "dest":[
+            {
+                "facility":"",
+                "percent":100,
+                "vehicle":"Truck A"
+            }
+            ]
+        },
+        {
+            "label":"Non Organic",
+            "data":[0,10,10,5,60,15],
+            "dest":[
+            {
+                "facility":"",
+                "percent":100,
+                "vehicle":"Truck A"
+            }
+            ]
+        },
+        {
+            "label":"Multi Family",
+            "data":[8000,55,10,2,29,4],
+            "dest":[
+            {
+                "facility":"Burnaby WtE",
+                "percent":100,
+                "vehicle":"Truck A"
+            }
+            ]
+        },
+        {
+            "label":"Comercial (ICI)",
+            "data":[5000,45,20,2,29,4],
+            "dest":[
+            {
+                "facility":"Cache Creek Landfill",
+                "percent":100,
+                "vehicle":"Truck A"
+            }
+            ]
+        },
+        {
+            "label":"DLC",
+            "data":[4000,5,10,50,5,30],
+            "dest":[
+            {
+                "facility":"Leakage",
+                "percent":100,
+                "vehicle":"Truck A"
+            }
+            ]
+        },
+        {
+            "label":"Farm",
+            "data":[2000,80,2,14,2,2],
+            "dest":[
+            {
+                "facility":"Richmond Harvest Power",
+                "percent":100,
+                "vehicle":"Truck A"
+            }
+            ]
+        }
+
+    ],
+        "year":2015
+}
