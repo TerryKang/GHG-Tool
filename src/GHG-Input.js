@@ -14,13 +14,13 @@ function init(){
         .type("json")
         .on("success",function(data){
             serverData=data;
-            build();
-            addDest();
+            buildComp();
+            buildDest();
         })
     .go();
 }
 
-function build(){
+function buildComp(){
     var res = serverData;
     $("#inputTable").css("overflow","auto");
     inputRoot.find("tbody").empty();
@@ -51,7 +51,7 @@ function build(){
                 .append("<input type=\"text\">")
                 .find("input:last");
             temp.val(res.results[x].data[c]);
-            temp.bind("keypress focusout",function(){validate();});
+            temp.bind("keypress focusout focusin",function(){validateComp();});
         }
         //check column
         var temp = inputRoot.find("tr:last");
@@ -60,10 +60,10 @@ function build(){
                 .find("b:last")
                 .text("Loading...");
     }
-    validate();
+    validateComp();
 }
-
-function validate(){
+//
+function validateComp(){
     inputRoot.find("tr").each(function(){
         sum = -1;
         $(this).find("td").each(function(){
@@ -78,56 +78,116 @@ function validate(){
         $(this).find("b").text(sum==100?"OK":"Check Values");
     });
 }
+function buildDest(){
+    var base = serverData;
+    destinationRoot.append("<tr>");
+    //add data rows
+    for(x in base.results){
+        destinationRoot.append("<tr>");
+    }
+    //add labels
+    destinationRoot.find("tr:first")
+        .append("<td>")
+        .find("td:last")
+        .text("Facility");
+    destinationRoot.find("tr:first")
+        .append("<td>")
+        .find("td:last")
+        .text("%Transfer");
+    destinationRoot.find("tr:first")
+        .append("<td>")
+        .find("td:last")
+        .text("Vehicle");
+
+    destinationRoot.find("tr").each(function(index){
+        //skip labels
+        if(index){
+        var current = base.results[index-1].dest[0];//only the first dest right now
+            $(this).append("<td>")
+        .find("td:last")
+        .append(function(){
+            //create the selection 
+            var sel = $("<select>");
+            for(var i = 0; i < base.facility.length;++i) {
+                //add the options
+                sel.append($("<option>",{value:i,text:base.facility[i]}));
+            }
+            return sel;
+        })
+        .find("select:last")   
+        .val(current.facility);
+    $(this).append("<td>")
+        .find("td:last")
+        .append("<input type=\"text\">")
+        .find("input:last")
+        .val(current.percent);
+    $(this).append("<td>")
+        .find("td:last")
+        .append(function(){
+            //create the selection 
+            var sel = $("<select>");
+            for(var i = 0; i < base.trucks.length;++i) {
+                //add the options
+                sel.append($("<option>",{value:i,text:base.trucks[i]}));
+            }
+            return sel;
+        })
+        .find("select:last")
+        .val(current.vehicle);
+        }
+    });
+}
 
 function addDest(){
     var base = serverData;
-    var dest = "Vancouver Landfill";
-    var truck = "Truck A";
-    var x;
+    //add labels
+    destinationRoot.find("tr:first")
+        .append("<td>")
+        .find("td:last")
+        .text("Facility");
+    destinationRoot.find("tr:first")
+        .append("<td>")
+        .find("td:last")
+        .text("%Transfer");
+    destinationRoot.find("tr:first")
+        .append("<td>")
+        .find("td:last")
+        .text("Vehicle");
 
-    //no rows yet
-    if(destinationRoot.find("tr").length==0){
-        //add label row
-        destinationRoot.append("<tr>");
-        //add data rows
-        for(x in base.results){
-            destinationRoot.append("<tr>");
-        }
-    }
-    //rows already so add defaults
-    if(destinationRoot.find("tr").length!=0){
-        //add labels
-        destinationRoot.find("tr:first")
-            .append("<td>")
-            .find("td:last")
-            .text("Facility");
-        destinationRoot.find("tr:first")
-            .append("<td>")
-            .find("td:last")
-            .text("%Transfer");
-        destinationRoot.find("tr:first")
-            .append("<td>")
-            .find("td:last")
-            .text("Vehicle");
-
-    }
-    destinationRoot.find("tr").each(function(){
-        if($(this).find("td:contains(Facility)").length == 0){
+    destinationRoot.find("tr").each(function(index){
+        //skip labels
+        if(index){
             $(this).append("<td>")
         .find("td:last")
-        .append("<input type=\"text\">")
-        .find("input:last")
-        .val(dest);
+        .append(function(){
+            //create the selection 
+            var sel = $("<select>");
+            for(var i = 0; i < base.facility.length;++i) {
+                //add the options
+                sel.append($("<option>",{value:i,text:base.facility[i]}));
+            }
+            return sel;
+        })
+        .find("select:last")   
+        .val(0);
     $(this).append("<td>")
         .find("td:last")
         .append("<input type=\"text\">")
         .find("input:last")
-        .val(100);
+        .val(0);
     $(this).append("<td>")
         .find("td:last")
-        .append("<input type=\"text\">")
-        .find("input:last")
-        .val(truck);
+        .append(function(){
+            //create the selection 
+            var sel = $("<select>");
+            for(var i = 0; i < base.trucks.length;++i) {
+                //add the options
+                sel.append($("<option>",{value:i,text:base.trucks[i]}));
+            }
+            return sel;
+        })
+        .find("select:last")
+        .val(0);
         }
     });
 }

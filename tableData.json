@@ -1,6 +1,8 @@
 {
     "comps":
         ["Source","Tonnage","Organic","Paper","Wood","Plastic","Other"],
+    "facility":["Vancouver Landfill","Burnaby WtE","Cache Creek Landfill","Leakage","Richmond Harvest Power"],
+    "trucks":["Truck A", "Truck B"],
     "results":
         [
         {
@@ -8,9 +10,9 @@
             "data":[10000,55,10,2,29,4],
             "dest":[
             {
-                "facility":"Vancouver Landfill",
+                "facility":0,
                 "percent":100,
-                "vehicle":"Truck A"
+                "vehicle":0
             }
             ]
         },
@@ -19,9 +21,9 @@
             "data":[0,90,2,2,2,4],
             "dest":[
             {
-                "facility":"",
+                "facility":0,
                 "percent":100,
-                "vehicle":"Truck A"
+                "vehicle":0
             }
             ]
         },
@@ -30,9 +32,9 @@
             "data":[0,10,10,5,60,15],
             "dest":[
             {
-                "facility":"",
+                "facility":0,
                 "percent":100,
-                "vehicle":"Truck A"
+                "vehicle":0
             }
             ]
         },
@@ -41,9 +43,9 @@
             "data":[8000,55,10,2,29,4],
             "dest":[
             {
-                "facility":"Burnaby WtE",
+                "facility":1,
                 "percent":100,
-                "vehicle":"Truck A"
+                "vehicle":0
             }
             ]
         },
@@ -52,9 +54,9 @@
             "data":[5000,45,20,2,29,4],
             "dest":[
             {
-                "facility":"Cache Creek Landfill",
+                "facility":2,
                 "percent":100,
-                "vehicle":"Truck A"
+                "vehicle":0
             }
             ]
         },
@@ -63,9 +65,9 @@
             "data":[4000,5,10,50,5,30],
             "dest":[
             {
-                "facility":"Leakage",
+                "facility":3,
                 "percent":100,
-                "vehicle":"Truck A"
+                "vehicle":0
             }
             ]
         },
@@ -74,9 +76,9 @@
             "data":[2000,80,2,14,2,2],
             "dest":[
             {
-                "facility":"Richmond Harvest Power",
+                "facility":4,
                 "percent":100,
-                "vehicle":"Truck A"
+                "vehicle":0
             }
             ]
         }
