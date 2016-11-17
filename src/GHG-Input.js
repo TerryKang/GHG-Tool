@@ -102,7 +102,7 @@ function buildDest(){
     destinationRoot.find("tr").each(function(index){
         //skip labels
         if(index){
-        var current = base.results[index-1].dest[0];//only the first dest right now
+            var current = base.results[index-1].dest[0];//only the first dest right now
             $(this).append("<td>")
         .find("td:last")
         .append(function(){
@@ -114,7 +114,7 @@ function buildDest(){
             }
             return sel;
         })
-        .find("select:last")   
+    .find("select:last")   
         .val(current.facility);
     $(this).append("<td>")
         .find("td:last")
@@ -132,7 +132,7 @@ function buildDest(){
             }
             return sel;
         })
-        .find("select:last")
+    .find("select:last")
         .val(current.vehicle);
         }
     });
@@ -167,9 +167,7 @@ function addDest(){
                 sel.append($("<option>",{value:i,text:base.facility[i]}));
             }
             return sel;
-        })
-        .find("select:last")   
-        .val(0);
+        });
     $(this).append("<td>")
         .find("td:last")
         .append("<input type=\"text\">")
@@ -185,11 +183,56 @@ function addDest(){
                 sel.append($("<option>",{value:i,text:base.trucks[i]}));
             }
             return sel;
-        })
-        .find("select:last")
-        .val(0);
+        });
         }
     });
+}
+
+function getData(){
+    var result = {"comps":[],"results":[]};
+    var i = 0;
+    var j = 0;
+    var dimRow = inputRoot.find("tr").length;
+    var dimCol = inputRoot.find("tr:first td").length;
+
+    inputRoot.find("tr").each(function(index,elem){
+        if(index == 0){
+            $(this).find("td").each(function(index2,elem2){
+                if(index2 > 1 && index2 < dimCol - 1)
+                    result.comps[i++] = $(this).text();
+            });
+        } else {
+            result.results[j] = {"data":[],"dest":[]};
+            var k = 0;
+            $(this).find("td").each(function(index2,elem2){
+                if(index2 != 0 && index2 < dimCol-1)
+                    result.results[j].data[k++] = $(this).find("input").val();
+                if(index2 == 0)
+                    result.results[j].label = $(this).text();
+            });
+            ++j;
+        }
+    });
+    j = 0;
+    destinationRoot.find("tr").each(function(index,elem){
+        if(index==0)
+            return;
+        i = 0;
+        $(this).find("td").each(function(index2,elem2){
+            if(index2%3==0){//facility
+                result.results[j].dest[i] = {
+                    "facility":$(this).find("select").val()
+                };
+            } else if(index2%3==1) {//transfer
+                result.results[j].dest[i].percent = $(this).find("input").val();
+            } else {//truck
+                result.results[j].dest[i].vehicle = $(this).find("select").val();
+                ++i;
+            }
+        });
+        ++j;
+    });
+    debugger;
 }
 
 function mvL() {
@@ -202,4 +245,5 @@ function mvR() {
     if(spR>2){
         $("#inputDiv").removeClass("col-xs-"+spL).addClass("col-xs-"+(++spL));
         $("#destDiv").removeClass("col-xs-"+spR).addClass("col-xs-"+(--spR));
-    }}
+    }
+}
