@@ -30,6 +30,31 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
+<style>
+    .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 16px solid #ffffff;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+    }
+</style>
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -106,17 +131,30 @@ desired effect
     <section class="content-header">
       <h1>
         GHG-Analysis
-        <small>Preview sample</small>
       </h1>
+      <div class='form-group'>
+        <label for="selScenario">Select Scenario :</label>
+        <select class="form-control" id="selScenario">
+
+        </select>
+      </div>
+        <div id="chartFilter">
+            <button class="btn btn-primary filter-button" data-filter="all">All</button>
+            <button class="btn btn-default filter-button" data-filter="srcbycomp">SourceByComposition</button>
+            <button class="btn btn-default filter-button" data-filter="srcbydest">SourceByDestination</button>
+            <button class="btn btn-default filter-button" data-filter="destbysrc">DestinationBySource(Bar)</button>
+            <button class="btn btn-default filter-button" data-filter="destbysrcPie">DestinationBySource(Pie)</button>
+            <button class="btn btn-default filter-button" data-filter="destbycomp">DestinationByComposition(Bar)</button>
+            <button class="btn btn-default filter-button" data-filter="destbycompPie">DestinationByComposition(Pie)</button>
+        </div>
       <ol class="breadcrumb">
         <li><a href="input.html"><i class="fa fa-dashboard"></i>Home</a></li>
         <li><a href="#">Analysis</a></li>
       </ol>
     </section>
-
+    <div class="loader"></div>
     <!-- Main content -->
     <section class="content" id="chartContent">
-
       <!-- /.row -->
 
     </section>
@@ -186,15 +224,60 @@ desired effect
 <script>
 
 $( document ).ready(function() {
-        aja()
-          .url('testData.json')
-          .on('success', function(data){
-                var ghgChart = new GHGChart($("#chartContent"),data);
-                ghgChart.init();
-          })
-          .go();
+    aja()
+    .url('analysis/historyList')
+    .on('success', function(data){
+        for(var i=0; i<data.length;i++){
+            var newOption = $('<option>');
+            var text = data[i].scenarioName + ", " + new Date(data[i].date.date)
+            newOption.attr('value', data[i].scenarioName).text(text);
+            $('#selScenario').append(newOption);
+        }
+        $("#selScenario").change(function () {
+            var scenarioName = $('#selScenario :selected').val();
+            selectScenario(scenarioName);
+        });
+        if($('#selScenario option').size()>0){
+            var scenarioName = $('#selScenario :selected').val();
+            selectScenario(scenarioName);
+        }
+    })
+    .go();
+
+    $(".filter-button").click(function(){
+        var value = $(this).attr('data-filter');
+        if(value == "all")
+        {
+            $('.filter').show('slow');
+        }
+        else
+        {
+            $(".filter").not('.'+value).hide('slow',function(){
+                $('.filter').filter('.'+value).show('slow');
+            });
+        }
+    });
 });
 
+function selectScenario(scenarioName){
+    $("#chartContent").empty();
+    $('.loader').show('slow', function(){
+        aja()
+        //.url('testData.json')
+        .url('analysis/' + scenarioName)
+        .on('success', function(data){
+            $('.loader').hide();
+            if(data.hasOwnProperty('results')){
+                $("#chartFilter").show();
+                var ghgChart = new GHGChart($("#chartContent"),data);
+                ghgChart.init();
+            }else{
+                $("#chartFilter").hide();
+            }
+        })
+        .go();
+    });
+}
 </script>
 
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
