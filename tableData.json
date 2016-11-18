@@ -1,6 +1,6 @@
 {
     "comps":
-        ["Source","Tonnage","Organic","Paper","Wood","Plastic","Other"],
+        ["Tonnage","Organic","Paper","Wood","Plastic","Other"],
     "facility":["Vancouver Landfill","Burnaby WtE","Cache Creek Landfill","Leakage","Richmond Harvest Power"],
     "trucks":["Truck A", "Truck B"],
     "results":

@@ -10,7 +10,7 @@ function init(){
     inputRoot = $("#inputTable").find("tbody");
     destinationRoot = $("#destinationTable").find("tbody");
     aja()
-        .url("tableData.json")
+        .url("/input/last")
         .type("json")
         .on("success",function(data){
             serverData=data;
@@ -27,6 +27,9 @@ function buildComp(){
     var row = inputRoot.append("<tr>").find("tr:last");
     var x;
     //first titles
+    row.append("<td>")
+        .find("td:last")
+        .text("Sources\\Compositions");
     for(x in res.comps){
         row.append("<td>")
             .find("td:last")
@@ -187,6 +190,17 @@ function addDest(){
         }
     });
 }
+function saveData(){
+    aja()
+        .url("/api/inputTable")
+        .type("json")
+        .method("post")
+        .body(getData())
+        .on("success",function(data){})
+        .go();
+
+}
+
 
 function getData(){
     var result = {"comps":[],"results":[]};
@@ -199,16 +213,16 @@ function getData(){
         if(index == 0){
             $(this).find("td").each(function(index2,elem2){
                 if(index2 > 1 && index2 < dimCol - 1)
-                    result.comps[i++] = $(this).text();
+                result.comps[i++] = $(this).text();
             });
         } else {
             result.results[j] = {"data":[],"dest":[]};
             var k = 0;
             $(this).find("td").each(function(index2,elem2){
                 if(index2 != 0 && index2 < dimCol-1)
-                    result.results[j].data[k++] = $(this).find("input").val();
-                if(index2 == 0)
-                    result.results[j].label = $(this).text();
+                result.results[j].data[k++] = $(this).find("input").val();
+            if(index2 == 0)
+                result.results[j].label = $(this).text();
             });
             ++j;
         }
@@ -216,23 +230,23 @@ function getData(){
     j = 0;
     destinationRoot.find("tr").each(function(index,elem){
         if(index==0)
-            return;
-        i = 0;
-        $(this).find("td").each(function(index2,elem2){
-            if(index2%3==0){//facility
-                result.results[j].dest[i] = {
-                    "facility":$(this).find("select").val()
-                };
-            } else if(index2%3==1) {//transfer
-                result.results[j].dest[i].percent = $(this).find("input").val();
-            } else {//truck
-                result.results[j].dest[i].vehicle = $(this).find("select").val();
-                ++i;
-            }
-        });
-        ++j;
+        return;
+    i = 0;
+    $(this).find("td").each(function(index2,elem2){
+        if(index2%3==0){//facility
+            result.results[j].dest[i] = {
+                "facility":$(this).find("select").val()
+            };
+        } else if(index2%3==1) {//transfer
+            result.results[j].dest[i].percent = $(this).find("input").val();
+        } else {//truck
+            result.results[j].dest[i].vehicle = $(this).find("select").val();
+            ++i;
+        }
     });
-    debugger;
+    ++j;
+    });
+    return JSON.stringify(result);
 }
 
 function mvL() {
