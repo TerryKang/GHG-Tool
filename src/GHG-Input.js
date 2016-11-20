@@ -31,30 +31,34 @@ function buildComp(){
         .find("td:last")
         .text("Sources\\Compositions");
     for(x in res.comps){
-        row.append("<td>")
-            .find("td:last")
-            .text(res.comps[x]);
+        if(x != 'key'){
+            row.append("<td>")
+                .find("td:last")
+                .text(res.comps[x]);
+        }
     }
     //empty td for space above check
     row.append("<td>");
     //each row
     for(x in res.results){
+        console.log("x:"+x+"::"+res.results[x].label);
         //row label
         inputRoot.append("<tr>")
             .find("tr:last")
             .append("<td>")
             .find("td:last")
             .text(res.results[x].label);
-        var c;
         //row data
-        for(c in res.results[x].data){
-            var temp = inputRoot.find("tr:last")
-                .append("<td>")
-                .find("td:last")
-                .append("<input type=\"text\">")
-                .find("input:last");
-            temp.val(res.results[x].data[c]);
-            temp.bind("keypress focusout focusin",function(){validateComp();});
+        for(var c in res.results[x].data){
+            if(c!='key'){
+                var temp = inputRoot.find("tr:last")
+                    .append("<td>")
+                    .find("td:last")
+                    .append("<input type=\"text\">")
+                    .find("input:last");
+                temp.val(res.results[x].data[c]);
+                temp.bind("keypress focusout focusin",function(){validateComp();});
+            }
         }
         //check column
         var temp = inputRoot.find("tr:last");
