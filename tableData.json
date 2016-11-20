@@ -7,7 +7,8 @@
         [
         {
             "label":"Single Family",
-            "data":[10000,55,10,2,29,4],
+            "tonnage":10000,
+            "data":[55,10,2,29,4],
             "dest":[
             {
                 "facility":0,
@@ -18,7 +19,8 @@
         },
         {
             "label":"Organic",
-            "data":[0,90,2,2,2,4],
+            "tonnage":0
+            "data":[90,2,2,2,4],
             "dest":[
             {
                 "facility":0,
