@@ -41,7 +41,6 @@ function buildComp(){
     row.append("<td>");
     //each row
     for(x in res.results){
-        console.log("x:"+x+"::"+res.results[x].label);
         //row label
         inputRoot.append("<tr>")
             .find("tr:last")
@@ -89,7 +88,7 @@ function buildDest(){
     var base = serverData;
     destinationRoot.append("<tr>");
     //add data rows
-    for(x in base.results){
+    for(var x in base.results){
         destinationRoot.append("<tr>");
     }
     //add labels
@@ -109,38 +108,42 @@ function buildDest(){
     destinationRoot.find("tr").each(function(index){
         //skip labels
         if(index){
-            var current = base.results[index-1].dest[0];//only the first dest right now
-            $(this).append("<td>")
-        .find("td:last")
-        .append(function(){
-            //create the selection 
-            var sel = $("<select>");
-            for(var i = 0; i < base.facility.length;++i) {
-                //add the options
-                sel.append($("<option>",{value:i,text:base.facility[i]}));
+            var full = base.results[index-1].dest;
+            for(var current in full){
+                //var current = base.results[index-1].dest[0];//only the first dest right now
+                $(this).append("<td>").find("td:last").append(function(){
+                    //create the selection 
+                    var sel = $("<select>");
+                    for(var x in base.facility) {
+                        if(x!='key'){
+                            //add the options
+                            sel.append($("<option>",{value:x,text:base.facility[x]}));
+                        }
+                    }
+                    return sel;
+                });
+
+                $(this).find("select:last").val(full[current].facility);
+                
+                $(this).append("<td>").find("td:last")
+                    .append("<input type=\"text\">").find("input:last")
+                    .val(full[current].percent);
+                
+                $(this).append("<td>").find("td:last")
+                    .append(function(){
+                    //create the selection 
+                    var sel = $("<select>");
+                    for(var x in base.trucks) {
+                        if(x!='key'){
+                            //add the options
+                            sel.append($("<option>",{value:x,text:base.trucks[x]}));
+                        }
+                    }
+                    return sel;
+                    });
+                
+                $(this).find("select:last").val(full[current].vehicle);
             }
-            return sel;
-        })
-    .find("select:last")   
-        .val(current.facility);
-    $(this).append("<td>")
-        .find("td:last")
-        .append("<input type=\"text\">")
-        .find("input:last")
-        .val(current.percent);
-    $(this).append("<td>")
-        .find("td:last")
-        .append(function(){
-            //create the selection 
-            var sel = $("<select>");
-            for(var i = 0; i < base.trucks.length;++i) {
-                //add the options
-                sel.append($("<option>",{value:i,text:base.trucks[i]}));
-            }
-            return sel;
-        })
-    .find("select:last")
-        .val(current.vehicle);
         }
     });
 }
@@ -169,9 +172,11 @@ function addDest(){
         .append(function(){
             //create the selection 
             var sel = $("<select>");
-            for(var i = 0; i < base.facility.length;++i) {
-                //add the options
-                sel.append($("<option>",{value:i,text:base.facility[i]}));
+            for(var x in base.facility) {
+                if(x!='key'){
+                    //add the options
+                    sel.append($("<option>",{value:x,text:base.facility[x]}));
+                }
             }
             return sel;
         });
@@ -196,7 +201,7 @@ function addDest(){
 }
 function saveData(){
     aja()
-        .url("/api/inputTable")
+        .url("/input/")
         .type("json")
         .method("post")
         .body(getData())

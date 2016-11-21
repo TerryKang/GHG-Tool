@@ -1,4 +1,7 @@
 <?php
+
+
+//get the newest scenario and building the respones
 function getNewest($con){
     $sql = "SELECT MAX(historyId) AS M FROM History";
     $stmt = sqlsrv_query( $con, $sql );
@@ -11,13 +14,27 @@ function getNewest($con){
     return $id;
 }
 
-function getLastScenario($con){
-    $history = getNewest($con);
+//check if history exists
+function checkHistory($con,$history){
+    $sql = "SELECT COUNT(*) AS C FROM History WHERE historyId = ". (int)$history;//force to be an int as this is user entered
+    $stmt = sqlsrv_query( $con, $sql );
+    if( $stmt === false) {
+        die( print_r( sqlsrv_errors(), true) );
+    }
+    return (sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)['C'] != 0);
+}
+
+//handle building scenario data by history id
+function getScenario($con,$history){
+    if(!checkHistory($con,$history)){
+        return json_encode(["message"=>"historyId not found","error_code"=>404]);
+    }
     $result = array(
         "facility"=>getDestination($con),
         "trucks"=>getTrucks($con),
         "comps"=>getComposition($con),
-        "results"=>array()
+        "results"=>array(),
+        "historyId"=>$history
     );
     $source = getSource($con);
     foreach($source as $key => $val){
@@ -33,15 +50,17 @@ function getLastScenario($con){
             "data"=>getDataBySource($con,$val,$tons,$history),
             "dest"=>array(
                 array(
-                "facility"=>0,
+                "facility"=>1,
                 "percent"=>100,
-                "vehicle"=>0)
+                "vehicle"=>1)
             )
         );
     }
     //case insenstive functions are amusing
     return jSoN_EnCoDe($result);
 }
+
+//get all trucks and put them into an assoc array by DB ID
 function getTrucks($con){
     $sql = "SELECT modelId, model FROM Vehicle";
     $stmt = sqlsrv_query( $con, $sql );
@@ -56,6 +75,7 @@ function getTrucks($con){
     return $model;
 }
 
+//get the percentage of each source's compositon
 function getDataBySource($con, $source, $tons, $history){
     $sql = 
         "SELECT compositionId, tonnageWT FROM SourceByComp "
@@ -76,6 +96,7 @@ function getDataBySource($con, $source, $tons, $history){
     $compData['key'] = 'compositionId';
     return $compData;
 }
+//get the total weight of the source to calulate the percentage
 function getSourceTonnage($con, $source, $history){
     $sql = 
         "SELECT SUM(tonnageWT) AS S FROM SourceByComp "
