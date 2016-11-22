@@ -26,6 +26,15 @@ $app->get('/', function (Request $request, Response $response) {
 });
 
 //input
+//post
+
+$app->post('/input/', function (Request $request, Response $response) use ($con)  {
+    $data = saveDests($con,json_decode($request->getBody(),true));
+    $response->write($data);
+    return $response;
+});
+
+//get
 $app->get('/input/last', function (Request $request, Response $response) use ($con)  {
     $data = getScenario($con,getNewest($con));
     $response->write($data);
