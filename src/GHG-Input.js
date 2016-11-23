@@ -127,18 +127,18 @@ function saveData(){
 
 
 function getData(){
-    var result = {"results":[]};
-    var j=0,i = 0;
+    var result = {"source":{}};
+    var j=1;
     destinationRoot.find("tr").each(function(index,elem){
         if(index==0)
             return;
-        i = 0;
-        result.results[j]={dest:[]};
+        var i = 1;
+        result.source[j]={dest:{}};
         $(this).find("td").each(function(index2,elem2){
             if(index2%2==0){//percent
-                result.results[j].dest[i] = {percent:$(this).find("input").val()};
+                result.source[j].dest[i] = {percent:$(this).find("input").val()};
             } else {//truck
-                result.results[j].dest[i].vehicle = $(this).find("select").val();
+                result.source[j].dest[i].vehicle = $(this).find("select").val();
                 ++i;
             }
         });

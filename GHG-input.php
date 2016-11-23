@@ -4,12 +4,40 @@
 //==>Saving Values<==
 //-------------------
 function saveDests($con, $data){
-    foreach($data['results'] as $source => $entry){
+    $history = getNewest($con);
+    //create a new history record
+    $histSql = "INSERT INTO History (historyName,userId,createDate) VALUES ('Scenario $history',2,GETDATE())";
+    $stmt = sqlsrv_query( $con, $histSql );
+    if( $stmt === false) {
+        die( print_r( sqlsrv_errors(), true) );
+    }
+    $newrec = getNewest($con);//i cant get the last insert id from sqlsrv nicely
+                         //when you can replace newrec with it
+
+
+    foreach($data['source'] as $source => $entry){
+        //find the tonnage for this source
+        $sql = "SELECT SUM(tonnageWT) AS S FROM SourceByComp "
+            ." WHERE sourceId = '$source'"
+            ." AND historyId = $history";
+        $stmt = sqlsrv_query( $con, $sql );
+        if( $stmt === false)
+            die( print_r( sqlsrv_errors(), true) );
+        
+        $tonWT = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)['S'];
+
         foreach($entry['dest'] as $facility => $dest){
-             
+            $newTon = $tonWT * (((double)$dest['percent'])/100);
+            $tonOT = 0;//tonnage w/ transport but how do i find what it is?
+            //vehicle not currently stored in the db
+            //$dest['vehicle']
+            $sql = "INSERT INTO SourceByDest VALUES('$source','$facility','$newrec',2015,'$newTon','$tonOT')";
+            $stmt = sqlsrv_query( $con, $sql );
+            if( $stmt === false) {
+                die( print_r( sqlsrv_errors(), true) );
+            }
         }
     }
-
 }
 
 
@@ -90,7 +118,13 @@ function getTrucks($con){
 //get the percentage of each source's compositon
 function getDataBySource($con, $source, $tons, $history){
     $sql = 
-        "SELECT compositionId, tonnageWT FROM SourceByComp"
+        "IF (SELECT COUNT(*) FROM SourceByComp WHERE historyId = $history) = 0"
+        ." SELECT compositionId, tonnageWT FROM SourceByComp"
+        ." LEFT JOIN Source ON (SourceByComp.sourceId = Source.sourceId)"
+        ." WHERE sourceName = '$source'"
+        ." AND historyId = (SELECT MAX(historyId) FROM SourceByComp)"
+        ." ELSE"
+        ." SELECT compositionId, tonnageWT FROM SourceByComp"
         ." LEFT JOIN Source ON (SourceByComp.sourceId = Source.sourceId)"
         ." WHERE sourceName = '$source'"
         ." AND historyId = $history"
@@ -103,7 +137,7 @@ function getDataBySource($con, $source, $tons, $history){
     }
     $compData = array();
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
-        $compData[$row['compositionId']]=round(100*(($row['tonnageWT']) / $tons));
+        $compData[$row['compositionId']]=round(100*(($row['tonnageWT']) / $tons),2);
     }
     $compData['key'] = 'compositionId';
     return $compData;
@@ -135,7 +169,13 @@ function getDestinationBySource($con, $source, $tons, $history){
 //get the total weight of the source to calulate the percentage
 function getSourceTonnage($con, $source, $history){
     $sql = 
-        "SELECT SUM(tonnageWT) AS S FROM SourceByComp "
+        "IF (SELECT COUNT(*) FROM SourceByComp WHERE historyId = $history) = 0"
+        ." SELECT SUM(tonnageWT) AS S FROM SourceByComp "
+        ." LEFT JOIN Source ON (SourceByComp.sourceId = Source.sourceId)"
+        ." WHERE sourceName = '$source'"
+        ." AND historyId = (SELECT MAX(historyId) FROM SourceByComp)"
+        ." ELSE"
+        ." SELECT SUM(tonnageWT) AS S FROM SourceByComp "
         ." LEFT JOIN Source ON (SourceByComp.sourceId = Source.sourceId)"
         ." WHERE sourceName = '$source'"
         ." AND historyId = $history"
@@ -146,8 +186,5 @@ function getSourceTonnage($con, $source, $history){
     if( $stmt === false) {
         die( print_r( sqlsrv_errors(), true) );
     }
-    while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
-        $tonnage = $row['S'];
-    }
-    return $tonnage;
+    return sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)['S'];
 }
