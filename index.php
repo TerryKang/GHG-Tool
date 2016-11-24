@@ -21,7 +21,7 @@ $app->get('/{page}', function (Request $request, Response $response) {
     return $response;
 });
 $app->get('/', function (Request $request, Response $response) {
-    $response->getBody()->write(file_get_contents("dashboard.html"));
+    $response->getBody()->write(file_get_contents("register.php"));
     return $response;
 });
 
@@ -36,14 +36,15 @@ $app->post('/input/', function (Request $request, Response $response) use ($con)
 
 //get
 $app->get('/input/last', function (Request $request, Response $response) use ($con)  {
-    $data = getScenario($con,getNewest($con));
+    $data = getScenario($con,getNewestDest($con),getNewestComp($con));
     $response->write($data);
     return $response;
 });
 
-$app->get('/input/{number}', function (Request $request, Response $response) use ($con)  {
-    $history = $request->getAttribute('number');
-    $data = getScenario($con,$history);
+$app->get('/input/{dest}/{comp}', function (Request $request, Response $response) use ($con)  {
+    $dest = $request->getAttribute('dest');
+    $comp = $request->getAttribute('comp');
+    $data = getScenario($con,$dest,$comp);
     $response->write($data);
     return $response;
 });
