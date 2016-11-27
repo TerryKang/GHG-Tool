@@ -42,7 +42,7 @@
     }
     function getHistoryList($uid, $con){
         $historyList=array();
-        $sql = "SELECT historyName, createDate  FROM History WHERE userId = " . $uid;
+        $sql = "SELECT distinct historyName, createDate FROM History join Destbycomp on History.historyId = Destbycomp.historyId WHERE History.userId = " . $uid;
         $stmt = sqlsrv_query( $con, $sql );
         if( $stmt === false) {
             die( print_r( sqlsrv_errors(), true) );
