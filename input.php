@@ -57,51 +57,7 @@ desired effect
 <body class="hold-transition skin-black sidebar-mini" onload="init();">
 <div class="wrapper">
 
-    <!-- Main Header -->
-    <header class="main-header">
-
-        <!-- Logo -->
-        <a href="dashboard.html" class="logo">
-            <!-- mini logo for sidebar mini 50x50 pixels -->
-            <span class="logo-mini"><b>GHG</b></span>
-            <!-- logo for regular state and mobile devices -->
-            <span class="logo-lg"><b>GHG</b>tool</span>
-        </a>
-
-        <!-- Header Navbar -->
-        <nav class="navbar navbar-static-top" role="navigation">
-            <!-- Sidebar toggle button-->
-            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                <span class="sr-only">Toggle navigation</span>
-            </a>
-            <!-- Navbar Right Menu -->
-            <div class="navbar-custom-menu">
-                <ul class="nav navbar-nav">
-                    <!-- Control Sidebar Toggle Button -->
-                    <li>
-                    <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
-    <!-- Left side column. contains the logo and sidebar -->
-    <aside class="main-sidebar">
-
-        <!-- sidebar: style can be found in sidebar.less -->
-        <section class="sidebar">
-            <!-- Sidebar Menu -->
-            <ul class="sidebar-menu">
-                <li class="header"><h4>SP Application</h4></li>
-                <!-- Optionally, you can add icons to the links -->
-                <li class="active"><a href="#"><i class="fa fa-list"></i> <span>Input</span></a></li>
-                <li><a href="analysis.html"><i class="fa fa-connectdevelop"></i> <span>Analysis</span></a></li>
-                <li><a href="db.html"><i class="fa fa-database"></i> <span>Base Dataset</span></a></li>
-            </ul>
-            <!-- /.sidebar-menu -->
-        </section>
-        <!-- /.sidebar -->
-    </aside>
+    <?php include "header.php" ?>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -163,47 +119,13 @@ desired effect
                 </div>
             </div>
         </section>
-        <!-- /.content -->
+    <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
 
-    <!-- Main Footer -->
-    <footer class="main-footer">
-        <!-- To the right -->
-        <div class="pull-right hidden-xs">
-            GHG Tool
-        </div>
-        <!-- Default to the left -->
-        <strong>Copyright &copy; 2016 <a href="#">Amiran Services</a>.</strong> All rights reserved.
-    </footer>
+    <?php include "footer.php" ?>
 
-    <!-- Control Sidebar -->
-    <aside class="control-sidebar control-sidebar-dark">
-        <!-- Create the tabs -->
-        <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
-            <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
-        </ul>
-        <!-- Tab panes -->
-        <div class="tab-content">
-            <!-- Home tab content -->
-            <!-- Stats tab content -->
-            <div class="tab-pane active" id="control-sidebar-stats-tab">
-                <div class="pull-left">
-                    <a href="#" class="btn btn-outline">
-                        <i class="fa fa-user"></i> Profile
-                    </a>
-                </div>
-                <div class="pull-right">
-                    <a href="#" class="btn btn-outline"><i class="fa fa-sign-out"></i> Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </aside>
-    <!-- /.control-sidebar -->
-    <!-- Add the sidebar's background. This div must be placed
-       immediately after the control sidebar -->
-    <div class="control-sidebar-bg"></div>
+    <?php include "sidebar.php" ?>
 </div>
 <!-- ./wrapper -->
 
