@@ -194,7 +194,7 @@ function saveData(){
 
 
 function getData(){
-    var result = {"source":{}};
+    var result = {"source":{"key":"sourceId"}};
     var j=1;
     destinationRoot.find("tr").each(function(index,elem){
         if(index==0)

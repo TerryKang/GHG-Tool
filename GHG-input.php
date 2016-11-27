@@ -4,9 +4,9 @@
 //==>Saving Values<==
 //-------------------
 function saveDests($con, $uid, $data){
-    $history = getNewest($con,$uid);
+    $history = getNewestDest($con,$uid);
     //create a new history record
-    $histSql = "INSERT INTO History (historyName,userId,createDate) VALUES ('Scenario $history',2,GETDATE())";
+    $histSql = "INSERT INTO History (historyName,userId,createDate) VALUES ('Scenario $history','$uid',GETDATE())";
     $stmt = sqlsrv_query( $con, $histSql );
     if( $stmt === false) {
         die(__LINE__. print_r( sqlsrv_errors(), true) );
@@ -14,10 +14,16 @@ function saveDests($con, $uid, $data){
     $newrec = getNewest($con, $uid);//i cant get the last insert id from sqlsrv nicely
                          //when you can replace newrec with it
     foreach($data['source'] as $source => $entry){
+        if($source == 'key')
+            continue;
         //find the tonnage for this source
-        $sql = "SELECT SUM(tonnageWT) AS W, SUM(tonnageOT) AS O FROM SourceByComp "
+        $sql = "SELECT SUM(tonnageWT) AS W, SUM(tonnageTO) AS O FROM SourceByDest "
             ." WHERE sourceId = '$source'"
-            ." AND historyId = $history";
+            ." AND historyId = $history"
+            ." AND historyId IN (SELECT H.historyId FROM History H"
+            ." INNER JOIN SourceByDest S ON (S.historyId = H.historyId)"
+            ." WHERE userId = '$uid')";
+            ;
         $stmt = sqlsrv_query( $con, $sql );
         if( $stmt === false)
             die(__LINE__. print_r( sqlsrv_errors(), true) );
@@ -26,7 +32,7 @@ function saveDests($con, $uid, $data){
         $tonWT = $row['W'];
         $tonOT = $row['O'];
         foreach($entry['dest'] as $facility => $dest){
-            $percent = (((double)$dest['percent'])/100);
+            $percent = $dest['percent']/100.0;
             $newWT = $tonWT * $percent;
             $newOT = $tonOT * $percent;
             //vehicle not currently stored in the db
