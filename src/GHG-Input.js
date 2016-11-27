@@ -1,13 +1,17 @@
 //input table
 var inputRoot;
+var inputScenario;
 //destination table
 var destinationRoot;
+var destinationScenario
 //initial data from the server
 var serverData;
 //spaceing between the tables left and right respectivly
 var spL = 7,spR = 5;
 function init(){
     inputRoot = $("#inputTable").find("tbody");
+    inputScenario = $('#inputScenario');
+    destinationScenario = $('#destinationScenario');
     destinationRoot = $("#destinationTable").find("tbody");
     aja()
         .url("/input/last")
@@ -16,6 +20,48 @@ function init(){
             serverData=data;
             buildComp();
             buildDest();
+        })
+    .go();
+
+    //load historys for source
+    aja()
+        .url('input/history/source')
+        .on('success', function(data){
+            for(var i=0; i<data.length;i++){
+                var newOption = $('<option>');
+                var text = data[i].scenarioName + ", " + new Date(data[i].date.date)
+            newOption.attr('value', data[i].scenarioName).text(text);
+        inputScenario.append(newOption);
+            }
+            inputScenario.change(function () {
+                var scenarioName = $('#inputScenario :selected').val();
+                //selectScenario(scenarioName);//handle change
+            });
+            if($('#inputScenario option').size()>0){
+                var scenarioName = $('#inputScenario :selected').val();
+                //selectScenario(scenarioName);
+            }
+        })
+    .go();
+
+//load historys for source
+    aja()
+        .url('input/history/destination')
+        .on('success', function(data){
+            for(var i=0; i<data.length;i++){
+                var newOption = $('<option>');
+                var text = data[i].scenarioName + ", " + new Date(data[i].date.date)
+                newOption.attr('value', data[i].scenarioName).text(text);
+                destinationScenario.append(newOption);
+            }
+            destinationScenario.change(function () {
+                var scenarioName = $('#destinationScenario :selected').val();
+                //selectScenario(scenarioName);//handle change
+            });
+            if($('#destinationScenario option').size()>0){
+                var scenarioName = $('#destinationScenario :selected').val();
+                //selectScenario(scenarioName);
+            }
         })
     .go();
 }
