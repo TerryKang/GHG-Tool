@@ -92,7 +92,7 @@ function checkHistory($con, $uid,$history){
 //get history list
 function getSourceHistory($con,$uid){
     $historyList=array();
-    $sql = "SELECT DISTINCT History.historyId, historyName, createDate  FROM History"
+    $sql = "SELECT DISTINCT History.historyId as H, historyName, createDate  FROM History"
         ." INNER JOIN SourceByComp ON (History.historyId = SourceByComp.historyId)"
         ." WHERE userId = '$uid'"
         ;
@@ -103,7 +103,8 @@ function getSourceHistory($con,$uid){
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $historyList[] = array(
             "scenarioName" => $row["historyName"],
-            "date" => $row["createDate"]
+            "date" => $row["createDate"],
+            "historyId" => $row["H"]
         );
     }
     return json_encode($historyList);
@@ -113,7 +114,7 @@ function getSourceHistory($con,$uid){
 //get history list
 function getDestinationHistory($con,$uid){
     $historyList=array();
-    $sql = "SELECT DISTINCT History.historyId, historyName, createDate  FROM History"
+    $sql = "SELECT DISTINCT History.historyId as H, historyName, createDate  FROM History"
         ." INNER JOIN SourceByDest ON (History.historyId = SourceByDest.historyId)"
         ." WHERE userId = '$uid'"
         ;
@@ -124,7 +125,8 @@ function getDestinationHistory($con,$uid){
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $historyList[] = array(
             "scenarioName" => $row["historyName"],
-            "date" => $row["createDate"]
+            "date" => $row["createDate"],
+            "historyId" => $row["H"]
         );
     }
     return json_encode($historyList);
