@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class='login_txt'>
-                    <p>Welcom, <?php echo $username; ?> </p><a href='editProfile.php' target='_parent'><img src='images/profile.gif' alt='Profile' title='Profile'></a>
+                    <p>Welcom, <?php echo $username; ?> </p><a href='/profile' target='_parent'><img src='images/profile.gif' alt='Profile' title='Profile'></a>
                     <a href='/logout'>logout</a>
                     </div>
                 </div>

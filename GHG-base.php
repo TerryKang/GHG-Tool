@@ -20,6 +20,16 @@ function getBase($con, $uid, $comp){
     //case insenstive functions are amusing
     return jSoN_EnCoDe($result);
 }
+
+function getBaseData($con){
+    $result = array(
+        "destination"=>getDestination($con),
+        "trucks"=>getTrucks($con),
+        "comps"=>getComposition($con),
+        "source"=>getSource($con)
+        );
+    return jSoN_EnCoDe($result);
+}
 function getTonnageBySource($con, $uid, $source, $history){
     $sql = 
         " SELECT tonnageWT AS W tonnageTO AS O FROM SourceByComp"

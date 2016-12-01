@@ -31,11 +31,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-<script>
-function init(){
-    inputTable = DynamicTable(document.getElementById("inputTable"),5,5,"<input type=\"text\"></input>");
-}
-</script>
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -57,7 +52,7 @@ desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition skin-black sidebar-mini" onload="init();">
+<body class="hold-transition skin-black sidebar-mini">
 <div class="wrapper">
 
     <?php include "header.php" ?>
@@ -75,7 +70,56 @@ desired effect
 
         <!-- Main content -->
         <section class="content">
-            <table class="table table-hover table-condensed" id="inputTable"></table>
+            <div class="row clearfix">
+                <div class="col-md-6 column">
+                    <table class="table table-bordered table-hover" id="tab_source">
+                        <thead>
+                            <tr >
+                                <th class="text-center">
+                                    Source
+                                </th>
+                                <th class="text-center" style="border-top: 1px solid #ffffff; border-right: 1px solid #ffffff;">
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <a id="add_source" class="btn btn-default pull-left">Add Source</a>
+                </div>
+                <div class="col-md-6 column">
+                    <table class="table table-bordered table-hover" id="tab_composition">
+                        <thead>
+                            <tr >
+                                <th class="text-center">
+                                    Composition
+                                </th>
+                                <th class="text-center" style="border-top: 1px solid #ffffff; border-right: 1px solid #ffffff;">
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                        <a id="add_composition" class="btn btn-default pull-left">Add Composition</a>
+                </div>
+                <div class="col-md-6 column">
+                    <table class="table table-bordered table-hover" id="tab_destination">
+                        <thead>
+                            <tr >
+                                <th class="text-center">
+                                    Destination
+                                </th>
+                                <th class="text-center" style="border-top: 1px solid #ffffff; border-right: 1px solid #ffffff;">
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                        <a id="add_destination" class="btn btn-default pull-left">Add Destination</a>
+                </div>
+            </div>
         </section>
         <!-- /.content -->
     </div>
@@ -96,6 +140,89 @@ desired effect
 <script src="bootstrap/js/bootstrap.min.js"></script>
 <!-- AdminLTE App -->
 <script src="dist/js/app.min.js"></script>
+<script src="src/aja.js-0.4.1/aja.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    aja()
+    .url('base/data')
+    .on('success', function(data){
+        if(data.hasOwnProperty('source')){
+            var source = data.source;
+            Object.keys(source).map(function(k) {
+                if(isNaN(k))
+                    return;
+                addSource(source[k]);
+            });
+        }
+        if(data.hasOwnProperty('comps')){
+            var composition = data.comps;
+            Object.keys(composition).map(function(k) {
+                if(isNaN(k))
+                    return;
+                addComposition(composition[k]);
+            });
+        }
+
+        if(data.hasOwnProperty('destination')){
+            var destination = data.destination;
+            Object.keys(destination).map(function(k) {
+                if(isNaN(k))
+                    return;
+                addDestination(destination[k]);
+            });
+        }
+    })
+    .go();
+
+    $("#add_source").click(function(){
+       addSource();
+    });    
+    $("#add_composition").click(function(){
+      addComposition();
+    });
+    $("#add_destination").click(function(){
+      addDestination();
+    });
+});
+
+function addSource(val){
+    var tr = document.createElement('tr');
+    var input = document.createElement('td');
+    var delButton = document.createElement('td');
+    $(input).html("<input type='text' placeholder='Source Name' class='form-control input-md'" +  ((val!=null)? "value='" + val + "' disabled" : "") + ">");
+    $(delButton).html("<button class='btn btn-danger glyphicon glyphicon-remove row-remove'> </button>");
+    $(tr).append($(input)).append($(delButton));
+    $('#tab_source').append($(tr));
+        $(delButton).on("click", function() {
+            $(this).closest("tr").remove();
+        });
+}
+function addComposition(val){
+    var tr = document.createElement('tr');
+    var input = document.createElement('td');
+    var delButton = document.createElement('td');
+    $(input).html("<input type='text' placeholder='Composition Name' class='form-control input-md'" +  ((val!=null)? "value='" + val + "' disabled" : "") + ">");
+    $(delButton).html("<button class='btn btn-danger glyphicon glyphicon-remove row-remove'> </button>");
+    $(tr).append($(input)).append($(delButton));
+    $('#tab_composition').append($(tr));
+        $(delButton).on("click", function() {
+            $(this).closest("tr").remove();
+        });
+}
+function addDestination(val){
+    var tr = document.createElement('tr');
+    var input = document.createElement('td');
+    var delButton = document.createElement('td');
+    $(input).html("<input type='text' placeholder='Destination Name' class='form-control input-md'" +  ((val!=null)? "value='" + val + "' disabled" : "") + ">");
+    $(delButton).html("<button class='btn btn-danger glyphicon glyphicon-remove row-remove'> </button>");
+    $(tr).append($(input)).append($(delButton));
+    $('#tab_destination').append($(tr));
+        $(delButton).on("click", function() {
+            $(this).closest("tr").remove();
+        });
+}
+</script>
 
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
      Both of these plugins are recommended to enhance the

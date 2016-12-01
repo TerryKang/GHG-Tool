@@ -10,7 +10,7 @@
             <!-- Stats tab content -->
             <div class="tab-pane active" id="control-sidebar-stats-tab">
                 <div class="pull-left">
-                    <a href="#" class="btn btn-outline">
+                    <a href="/profile" class="btn btn-outline">
                         <i class="fa fa-user"></i> Profile
                     </a>
                 </div>

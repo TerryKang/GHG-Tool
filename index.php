@@ -143,7 +143,190 @@ $app->post('/register', function (Request $request, Response $response) use($con
     return;
 });
 
+$app->get('/profile', function (Request $request, Response $response) use($con) {
+    $path = $request->getUri()->getPath();
+    $session = new \RKA\Session();
+    if(isset($session->userId) && !empty($session->userId)){
+            $userId = $session->userId;
+            $email = '';
+            $firstName = '';
+            $lastName = '';
+            $phone = '';
+            $address = '';
+            
+            $params = array(
+                        array(&$userId, SQLSRV_PARAM_IN, null, SQLSRV_SQLTYPE_INT),
+                        array(&$email, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(30)),
+                        array(&$firstName, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(30)),
+                        array(&$lastName, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(30)),
+                        array(&$phone, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(15)),
+                        array(&$address, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(70))
+                        );
 
+            $sql = "EXEC dbo.spUserInfo @userId=?, @email=?, @firstName=?, @lastName=?, @phone=?, @address=?";
+            $stmt = sqlsrv_prepare($con, $sql, $params);
+
+            if($stmt && sqlsrv_execute($stmt)) {
+                sqlsrv_next_result($stmt);
+                if($userId > 1) {
+                    $session = new \RKA\Session();
+                    $session->set('userId', $userId);
+                    $session->set('username', $firstName);
+                    sqlsrv_free_stmt($stmt);
+                    return $this->renderer->render($response, "/profile.php", [
+                        'username' => $firstName ,
+                        'userId' => $userId,
+                        'email' => $email,
+                        'firstName' => $firstName,
+                        'lastName' => $lastName,
+                        'phone' => $phone,
+                        'address' => $address,
+                        'path' => $path
+                        ]);
+                }
+            }  else {
+                die( print_r( sqlsrv_errors(), true));
+            }
+            sqlsrv_free_stmt($stmt);
+    }
+    header("location:javascript://history.go(-1)");
+    return;
+});
+
+$app->get('/editProfile', function (Request $request, Response $response) use($con) {
+    $path = $request->getUri()->getPath();
+    $session = new \RKA\Session();
+    if(isset($session->userId) && !empty($session->userId)){
+            $userId = $session->userId;
+            $email = '';
+            $firstName = '';
+            $lastName = '';
+            $phone = '';
+            $address = '';
+            
+            $params = array(
+                        array(&$userId, SQLSRV_PARAM_IN, null, SQLSRV_SQLTYPE_INT),
+                        array(&$email, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(30)),
+                        array(&$firstName, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(30)),
+                        array(&$lastName, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(30)),
+                        array(&$phone, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(15)),
+                        array(&$address, SQLSRV_PARAM_INOUT, null, SQLSRV_SQLTYPE_VARCHAR(70))
+                        );
+
+            $sql = "EXEC dbo.spUserInfo @userId=?, @email=?, @firstName=?, @lastName=?, @phone=?, @address=?";
+            $stmt = sqlsrv_prepare($con, $sql, $params);
+
+            if($stmt && sqlsrv_execute($stmt)) {
+                sqlsrv_next_result($stmt);
+                if($userId > 1) {
+                    $session = new \RKA\Session();
+                    $session->set('userId', $userId);
+                    $session->set('username', $firstName);
+                    sqlsrv_free_stmt($stmt);
+                    return $this->renderer->render($response, "/editProfile.php", [
+                        'username' => $firstName ,
+                        'userId' => $userId,
+                        'email' => $email,
+                        'firstName' => $firstName,
+                        'lastName' => $lastName,
+                        'phone' => $phone,
+                        'address' => $address,
+                        'path' => $path
+                        ]);
+                }
+            }  else {
+                die( print_r( sqlsrv_errors(), true));
+            }
+            sqlsrv_free_stmt($stmt);
+    }
+    header("location:javascript://history.go(-1)");
+    return;
+});
+
+$app->post('/editProfile', function (Request $request, Response $response) use($con) {
+    $path = $request->getUri()->getPath();
+    $session = new \RKA\Session();
+    $email = $request->getParsedBody()['email'];
+	$firstName = $request->getParsedBody()['firstName'];
+	$lastName = $request->getParsedBody()['lastName'];
+	$passwd = $request->getParsedBody()['oldPassword'];
+    $passwd1 = $request->getParsedBody()['newPassword'];
+    $passwd2 = $request->getParsedBody()['confirmPassword'];
+	$phone = "6041234567";
+	$address = $request->getParsedBody()['address'];
+	$userId = $session->userId;
+	$level = 1;
+	$isValid = 1;
+	$joinDate = null;
+    if(!empty($passwd1) && $passwd1 != $passwd2){
+        showMessageRedirect(EDIT_MSG, 0);
+        return;
+    }
+
+	if(!empty($email)) {
+        
+		$params = array(
+						array(&$userId, SQLSRV_PARAM_INOUT),
+						array(&$email, SQLSRV_PARAM_IN),
+						array(&$passwd, SQLSRV_PARAM_IN),
+						array(&$passwd1, SQLSRV_PARAM_IN),
+						array(&$firstName, SQLSRV_PARAM_IN),
+						array(&$lastName, SQLSRV_PARAM_IN),
+						array(&$phone, SQLSRV_PARAM_IN),
+						array(&$address, SQLSRV_PARAM_IN),
+						array(&$joinDate, SQLSRV_PARAM_IN),
+						array(&$level, SQLSRV_PARAM_IN),
+						array(&$isValid, SQLSRV_PARAM_IN)
+						);
+
+		$sql = "EXEC dbo.spUserUpdate @userId=?, @email=?, @passwd=?, @passwd1=?, @firstName=?, @lastName=?,"
+				."@phone=?, @address=?, @joinDate=?, @level=?, @isValid=?";
+		$stmt = sqlsrv_prepare($con, $sql, $params);
+		if($stmt && sqlsrv_execute($stmt)) {
+			sqlsrv_next_result($stmt);
+
+			if($userId > 1) {
+                $session->set('username', $firstName);
+				showMessageRedirect(EDIT_MSG, 0);
+				sqlsrv_free_stmt($stmt);
+				return;
+			}
+		}
+		else {
+			die( print_r( sqlsrv_errors(), true));
+		}
+		
+		sqlsrv_free_stmt($stmt);
+	}
+	showMessageRedirect(EDIT_MSG1, 2);
+    return;
+});
+$app->get('/findPassword', function (Request $request, Response $response) use($con) {
+    return $this->renderer->render($response, "/password.php");
+});
+$app->post('/findPassword', function (Request $request, Response $response) use($con) {
+    $email = $request->getParsedBody()['email'];
+	$passwd = substr(uniqid('', true), -5);
+
+	if(!empty($email)) {
+		$params = array(
+						array(&$email, SQLSRV_PARAM_IN),
+						array(&$passwd, SQLSRV_PARAM_IN)
+						);
+
+		$sql = "EXEC dbo.spUserFindPassword @email=?, @passwd=?";
+		$stmt = sqlsrv_prepare($con, $sql, $params);
+		
+		if($stmt && sqlsrv_execute($stmt)) {
+			sqlsrv_next_result($stmt);
+			showMessage($passwd);
+		} else {
+			showMessageRedirect(RECOVER_MSG2, 0);
+		}
+		sqlsrv_free_stmt($stmt);
+	}
+    return;
+});
 
 $app->get('/dashboard', function (Request $request, Response $response) {
     $path = $request->getUri()->getPath();
@@ -178,7 +361,6 @@ $app->get('/base', function (Request $request, Response $response) {
 $app->get('/{page}', function (Request $request, Response $response) {
     $name = $request->getAttribute('page');
     $response->getBody()->write(file_get_contents("$name"));
-
     return $response;
 });
 
@@ -201,6 +383,12 @@ $app->get('/base/last', function (Request $request, Response $response) use ($co
     $response->write($data);
     return $response;
 });
+
+$app->get('/base/data', function (Request $request, Response $response) use ($con)  {
+    $data = getBaseData($con);
+    $response->write($data);
+    return $response;
+})->add($auth);
 
 $app->get('/base/{comp}', function (Request $request, Response $response) use ($con)  {
     $session = new \RKA\Session();
@@ -271,5 +459,7 @@ $app->get('/analysis/{scenarioName}', function (Request $request, Response $resp
     $response->write($data);
     return $response;
 });
+
+
 
 $app->run();
