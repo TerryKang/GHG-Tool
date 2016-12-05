@@ -6,27 +6,43 @@ var destinationRoot;
 var destinationScenario
 //initial data from the server
 var serverData;
+var sourceHist;
+var destHist;
 //spaceing between the tables left and right respectivly
 var spL = 7,spR = 5;
-function init(){
-    inputRoot = $("#inputTable").find("tbody");
-    inputScenario = $('#inputScenario');
-    destinationScenario = $('#destinationScenario');
-    destinationRoot = $("#destinationTable").find("tbody");
+//current history ids
+var sourceId = 1;
+var destId = 1;
+
+function tableFetch(url){
     aja()
-        .url("/input/last")
+        .url(url)
         .type("json")
         .on("success",function(data){
+            //clear so we can reaload
+            inputRoot.empty();
+            destinationRoot.empty();
+        
             serverData=data;
+            
             buildComp();
             buildDest();
         })
     .go();
+}
 
+function init(){
+    //find needed elems
+    inputRoot = $("#inputTable").find("tbody");
+    inputScenario = $('#inputScenario');
+    destinationScenario = $('#destinationScenario');
+    destinationRoot = $("#destinationTable").find("tbody");
+    tableFetch('/input/last');
     //load historys for source
     aja()
         .url('input/history/source')
         .on('success', function(data){
+            sourceHist = data;
             for(var i=0; i<data.length;i++){
                 var newOption = $('<option>');
                 var text = data[i].scenarioName + ", " + new Date(data[i].date.date)
@@ -34,20 +50,23 @@ function init(){
         inputScenario.append(newOption);
             }
             inputScenario.change(function () {
-                var scenarioName = $('#inputScenario :selected').val();
-                //selectScenario(scenarioName);//handle change
+                var name = $('#inputScenario :selected').val().split(',')[0];
+                for(var x in sourceHist){
+                    if(sourceHist[x].scenarioName == name){
+                        sourceId = sourceHist[x].historyId;
+                        tableFetch("/input/"+destId+'/'+sourceId);
+                        return;
+                    }
+                }
             });
-            if($('#inputScenario option').size()>0){
-                var scenarioName = $('#inputScenario :selected').val();
-                //selectScenario(scenarioName);
-            }
         })
     .go();
 
-//load historys for source
+//load histories for source
     aja()
         .url('input/history/destination')
         .on('success', function(data){
+            destHist = data;
             for(var i=0; i<data.length;i++){
                 var newOption = $('<option>');
                 var text = data[i].scenarioName + ", " + new Date(data[i].date.date)
@@ -55,13 +74,15 @@ function init(){
                 destinationScenario.append(newOption);
             }
             destinationScenario.change(function () {
-                var scenarioName = $('#destinationScenario :selected').val();
-                //selectScenario(scenarioName);//handle change
+                var name = $('#destinationScenario :selected').val();
+                for(var x in destHist){
+                    if(destHist[x].scenarioName == name){
+                        destId = destHist[x].historyId;
+                        tableFetch("/input/"+destId+'/'+sourceId);
+                        return;
+                    }
+                }
             });
-            if($('#destinationScenario option').size()>0){
-                var scenarioName = $('#destinationScenario :selected').val();
-                //selectScenario(scenarioName);
-            }
         })
     .go();
 }
@@ -173,7 +194,7 @@ function saveData(){
 
 
 function getData(){
-    var result = {"source":{}};
+    var result = {"source":{"key":"sourceId"}};
     var j=1;
     destinationRoot.find("tr").each(function(index,elem){
         if(index==0)

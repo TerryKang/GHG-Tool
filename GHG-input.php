@@ -4,9 +4,9 @@
 //==>Saving Values<==
 //-------------------
 function saveDests($con, $uid, $data){
-    $history = getNewest($con,$uid);
+    $history = getNewestDest($con,$uid);
     //create a new history record
-    $histSql = "INSERT INTO History (historyName,userId,createDate) VALUES ('Scenario $history',2,GETDATE())";
+    $histSql = "INSERT INTO History (historyName,userId,createDate) VALUES ('Scenario $history','$uid',GETDATE())";
     $stmt = sqlsrv_query( $con, $histSql );
     if( $stmt === false) {
         die(__LINE__. print_r( sqlsrv_errors(), true) );
@@ -14,10 +14,16 @@ function saveDests($con, $uid, $data){
     $newrec = getNewest($con, $uid);//i cant get the last insert id from sqlsrv nicely
                          //when you can replace newrec with it
     foreach($data['source'] as $source => $entry){
+        if($source == 'key')
+            continue;
         //find the tonnage for this source
-        $sql = "SELECT SUM(tonnageWT) AS W, SUM(tonnageOT) AS O FROM SourceByComp "
+        $sql = "SELECT SUM(tonnageWT) AS W, SUM(tonnageTO) AS O FROM SourceByDest "
             ." WHERE sourceId = '$source'"
-            ." AND historyId = $history";
+            ." AND historyId = $history"
+            ." AND historyId IN (SELECT H.historyId FROM History H"
+            ." INNER JOIN SourceByDest S ON (S.historyId = H.historyId)"
+            ." WHERE userId = '$uid')";
+            ;
         $stmt = sqlsrv_query( $con, $sql );
         if( $stmt === false)
             die(__LINE__. print_r( sqlsrv_errors(), true) );
@@ -26,7 +32,7 @@ function saveDests($con, $uid, $data){
         $tonWT = $row['W'];
         $tonOT = $row['O'];
         foreach($entry['dest'] as $facility => $dest){
-            $percent = (((double)$dest['percent'])/100);
+            $percent = $dest['percent']/100.0;
             $newWT = $tonWT * $percent;
             $newOT = $tonOT * $percent;
             //vehicle not currently stored in the db
@@ -92,7 +98,7 @@ function checkHistory($con, $uid,$history){
 //get history list
 function getSourceHistory($con,$uid){
     $historyList=array();
-    $sql = "SELECT DISTINCT History.historyId, historyName, createDate  FROM History"
+    $sql = "SELECT DISTINCT History.historyId as H, historyName, createDate  FROM History"
         ." INNER JOIN SourceByComp ON (History.historyId = SourceByComp.historyId)"
         ." WHERE userId = '$uid'"
         ;
@@ -103,7 +109,8 @@ function getSourceHistory($con,$uid){
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $historyList[] = array(
             "scenarioName" => $row["historyName"],
-            "date" => $row["createDate"]
+            "date" => $row["createDate"],
+            "historyId" => $row["H"]
         );
     }
     return json_encode($historyList);
@@ -113,7 +120,7 @@ function getSourceHistory($con,$uid){
 //get history list
 function getDestinationHistory($con,$uid){
     $historyList=array();
-    $sql = "SELECT DISTINCT History.historyId, historyName, createDate  FROM History"
+    $sql = "SELECT DISTINCT History.historyId as H, historyName, createDate  FROM History"
         ." INNER JOIN SourceByDest ON (History.historyId = SourceByDest.historyId)"
         ." WHERE userId = '$uid'"
         ;
@@ -124,7 +131,8 @@ function getDestinationHistory($con,$uid){
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $historyList[] = array(
             "scenarioName" => $row["historyName"],
-            "date" => $row["createDate"]
+            "date" => $row["createDate"],
+            "historyId" => $row["H"]
         );
     }
     return json_encode($historyList);
