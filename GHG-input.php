@@ -3,7 +3,9 @@
 //-------------------
 //==>Saving Values<==
 //-------------------
+//takes in the database connection and userid with the parsed data
 function saveDests($con, $uid, $data){
+    //get the current highest history id for destinations
     $history = getNewestDest($con,$uid);
     //create a new history record
     $histSql = "INSERT INTO History (historyName,userId,createDate) VALUES ('Scenario $history','$uid',GETDATE())";
@@ -11,9 +13,14 @@ function saveDests($con, $uid, $data){
     if( $stmt === false) {
         die(__LINE__. print_r( sqlsrv_errors(), true) );
     }
-    $newrec = getNewest($con, $uid);//i cant get the last insert id from sqlsrv nicely
-                         //when you can replace newrec with it
+    //i cant get the last insert id from sqlsrv nicely
+    //when you can replace newrec with it
+    //currently in php7.1 MS SQL does not have a method to retrieve the last id
+    //the only ones that do are MySQL and its forks such as MariaDB, those have
+    //default sql bindings and can use things such as PDO objects
+    $newrec = getNewest($con, $uid);
     foreach($data['source'] as $source => $entry){
+        //skip keys
         if($source == 'key')
             continue;
         //find the tonnage for this source
@@ -29,8 +36,10 @@ function saveDests($con, $uid, $data){
             die(__LINE__. print_r( sqlsrv_errors(), true) );
         
         $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC);
-        $tonWT = $row['W'];
-        $tonOT = $row['O'];
+        $tonWT = $row['W'];//tonnage for without transport
+        $tonOT = $row['O'];//tonnage for only transport
+
+        //find eaches weight based on the percentage to transfer decided by the user
         foreach($entry['dest'] as $facility => $dest){
             $percent = $dest['percent']/100.0;
             $newWT = $tonWT * $percent;
@@ -50,6 +59,8 @@ function saveDests($con, $uid, $data){
 //-----------------------
 
 //get the newest scenario and building the respones
+//this filters by uid only
+//takes in the database connection and the userid
 function getNewest($con, $uid){
     $sql = "SELECT MAX(historyId) AS M FROM History WHERE userId = '$uid'";
     $stmt = sqlsrv_query( $con, $sql );
@@ -62,7 +73,8 @@ function getNewest($con, $uid){
     return $id;
 }
 
-//get the newest scenario and building the respones
+//get the newest composition historyId
+//takes ion the database connection and the userid
 function getNewestComp($con, $uid){
     $sql = "SELECT MAX(historyId) AS M FROM SourceByComp WHERE historyId IN"
         ." (SELECT historyId FROM History WHERE userId = '$uid')";
@@ -72,8 +84,8 @@ function getNewestComp($con, $uid){
     }
     return sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)['M'];
 }
-
-//get the newest scenario and building the respones
+//get the newest destination historyId
+//takes ion the database connection and the userid
 function getNewestDest($con, $uid){
     $sql = "SELECT MAX(historyId) AS M FROM SourceByDest WHERE historyId IN"
         ." (SELECT historyId FROM History WHERE userId = '$uid')";
@@ -84,7 +96,7 @@ function getNewestDest($con, $uid){
     return sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)['M'];
 }
 
-//check if history exists
+//check if historyid exists to prevent malformed requests
 function checkHistory($con, $uid,$history){
     $sql = "SELECT COUNT(*) AS C FROM History WHERE historyId = '$history'"
         ." AND userId = '$uid'";
@@ -95,7 +107,7 @@ function checkHistory($con, $uid,$history){
     return (sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)['C'] != 0);
 }
 
-//get history list
+//get history list for sources
 function getSourceHistory($con,$uid){
     $historyList=array();
     $sql = "SELECT DISTINCT History.historyId as H, historyName, createDate  FROM History"
@@ -106,6 +118,7 @@ function getSourceHistory($con,$uid){
     if( $stmt === false) {
         die( print_r( sqlsrv_errors(), true) );
     }
+    //add all sources to the payload
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $historyList[] = array(
             "scenarioName" => $row["historyName"],
@@ -117,7 +130,7 @@ function getSourceHistory($con,$uid){
 }
 
 
-//get history list
+//get history list for destinations
 function getDestinationHistory($con,$uid){
     $historyList=array();
     $sql = "SELECT DISTINCT History.historyId as H, historyName, createDate  FROM History"
@@ -128,6 +141,7 @@ function getDestinationHistory($con,$uid){
     if( $stmt === false) {
         die( print_r( sqlsrv_errors(), true) );
     }
+    //add all destinations to the payload
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $historyList[] = array(
             "scenarioName" => $row["historyName"],
@@ -144,11 +158,13 @@ function getDestinationHistory($con,$uid){
 //--------------------
 //handle building scenario data by history id
 function getScenario($con, $uid,$dest,$comp){
+    //verify that the history request was a valid one
     if(!(checkHistory($con, $uid,$dest)&&checkHistory($con, $uid,$comp))){
         return json_encode(["message"=>"historyId not found","error_code"=>404]);
     }
     $comp = (int)$comp;//force to an int to reduce user impact on queries
     $dest = (int)$dest;//force to an int to reduce user impact on queries
+    //build the result out of the other helper functions
     $result = array(
         "facility"=>getDestination($con),
         "trucks"=>getTrucks($con),
@@ -157,14 +173,17 @@ function getScenario($con, $uid,$dest,$comp){
         "compHistoryId"=>$comp,
         "destHistoryId"=>$dest
     );
+    //find the source for this request
     $source = getSource($con);
     foreach($source as $key => $val){
         if(!is_numeric($key))
             continue;
+        //find tonnage to calc percent
         $tons = getSourceTonnage($con, $uid,$val,$comp);
         if($tons==0){
             $tons=1;//avoid devide by zero if there are no listed tons
         }
+        //add the percent to each of the results
         $result["results"][] = array(
             "label"=>$val,
             "tonnage"=> $tons,
@@ -176,7 +195,7 @@ function getScenario($con, $uid,$dest,$comp){
     return jSoN_EnCoDe($result);
 }
 
-//get all trucks and put them into an assoc array by DB ID
+//get all trucks and put them into an assoc array for consumption by getScenario
 function getTrucks($con){
     $sql = "SELECT modelId, model FROM Vehicle";
     $stmt = sqlsrv_query( $con, $sql );
@@ -207,13 +226,16 @@ function getDataBySource($con, $uid, $source, $tons, $history){
         die(__LINE__. print_r( sqlsrv_errors(), true) );
     }
     $compData = array();
+    //add all the weights
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $compData[$row['compositionId']]=round(100*(($row['tonnageWT']) / $tons),2);
     }
+    //set the key field
     $compData['key'] = 'compositionId';
     return $compData;
 }
-//get the percentage of each source's compositon
+
+//get all destinations and put them into an assoc array for consumption by getScenario
 function getDestinationBySource($con, $uid, $source, $tons, $history){
     $sql = 
         "SELECT destinationId, tonnageWT FROM SourceByDest"
@@ -229,6 +251,7 @@ function getDestinationBySource($con, $uid, $source, $tons, $history){
         die(__LINE__. print_r( sqlsrv_errors(), true) );
     }
     $dest = array();
+    //add all weights
     while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC) ) {
         $dest[] = array(
             'facility' => $row['destinationId'],
